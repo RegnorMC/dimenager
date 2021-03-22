@@ -1,0 +1,34 @@
+plugins {
+    id 'fabric-loom' version '0.6-SNAPSHOT'
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+archivesBaseName = 'dimension-manager'
+group = 'com.beetmacol'
+version = '0.0.1'
+
+dependencies {
+    minecraft 'com.mojang:minecraft:1.16.5'
+    mappings minecraft.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:0.11.3"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    def targetVersion = 8
+    if (JavaVersion.current().isJava9Compatible()) {
+        it.options.release = targetVersion
+    }
+}
+
+java {
+    withSourcesJar()
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}"}
+    }
+}
