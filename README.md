@@ -18,20 +18,19 @@ This command splits into three sub commands. `/dimension worlds`, `/dimension ty
 /dimension
 ├── worlds
 │   ├──	add <identifier> <type> <generator>    Creates a new dimension
-│   ├──	remove <identifier>                    Removes a dimension
+│   ├──	remove <dimension>                     Removes a dimension
 │   └──	list                                   Lists dimensions
 ├── types
-│   ├──	add <identifier>
-│   │	├── <type>                             Creates a new dimension type with defualt settings
-│   │	└── copy <identifier>                  Copies settings of a dimension type to a new one
-│   ├──	remove <identifier>                    Removes a dimension type
+│   ├──	add <identifier>                       Creates a new dimension type with defualt settings
+│   │	└── copy <other>                       Copies settings of a dimension type to a new one
+│   ├──	remove <type>                          Removes a dimension type
 │   ├──	list                                   Lists available dimension types
 │   └──	set <property> <value>                 Changes a property of a dimension type
 └── generators
     ├──	add <identifier>
     │   ├── <type>                             Creates a generator of given gnerator type
-    │   └── copy <identifier>                  Creates a new generator from another one
-    ├──	remove <identifier>                    Removes a generator
+    │   └── copy <other>                       Creates a new generator from another one
+    ├──	remove <generator>                     Removes a generator
     ├──	modify // TODO
     ├──	list                                   Lists available generators
     └──	types                                  Lists available generator types
