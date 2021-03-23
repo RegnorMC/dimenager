@@ -15,6 +15,8 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:0.11.3"
 }
 
+minecraft.accessWidener = file("src/main/resources/dimenager.accesswidener")
+
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
     def targetVersion = 8

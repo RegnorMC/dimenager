@@ -4,12 +4,14 @@
   "package": "com.beetmacol.mc.dimenager.mixin",
   "compatibilityLevel": "JAVA_8",
   "server": [
+    "CommandRegistrationMixin",
+    "MinecraftServerAccessor",
+    "TeleportCommandMixin"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "mixins": [
-    "CommandRegistrationMixin",
-    "MinecraftServerAccessor"
+    "WorldCoordinatesAccessor"
   ]
 }
