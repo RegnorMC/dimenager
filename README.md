@@ -1,6 +1,6 @@
-# Dimension Manager
-Dimension Manager is a [Fabric](https://fabricmc.net/) server-side mod that lets you easily manage Minecraft dimesnions in-game using simple commands.  
-Dimension Manager **does not depend** on any other mods including the [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api).  
+# Dimenager
+Dimenager is a [Fabric](https://fabricmc.net/) server-side mod that lets you easily manage Minecraft dimensions in-game using simple commands.  
+The mod **does not depend** on any other mods including the [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api).
 ## The concept
 ### Dimensions
 Every dimension is represented with an identifier and contains its own generator settings and is linked to a dimension type. To avoid any confusion `/dimension worlds` is used to manage the dimensions, and is called "worlds" because `/dimension dimensions` would not sound too well.
@@ -9,10 +9,10 @@ The dimension types are a collection of properties for your dimensions. I recomm
 ### Generators
 The generators simply tell the game how to generate a dimension. Creating a world with a generator and then changing that generator won't change how the dimension generates, because the `/dimension worlds add ...` command creates the exact copy of the given generator. This is not the case in dimension types as the world is linked to a dimension type.  
 ### Generator types
-Every generator is based on a generator type, and contains its properties. The types can only be added by Minecraft or mods. The vanilla generator types are: `minecraft:noise`, `minecraft:flat` and `minecraft:debug`, but the Dimension Manager also adds `dimension-manager:empty`, so you don't need to create flat worlds with one air layer.
+Every generator is based on a generator type, and contains its properties. The types can only be added by Minecraft or mods. The vanilla generator types are: `minecraft:noise`, `minecraft:flat` and `minecraft:debug`, but the Dimenager also adds `dimenager:empty`, so you don't need to create flat worlds with one air layer (there is also a build-in generator that is based on that generator type).
 ## The `/dimension` command
-Most of the mod's features can be used with the vanilla styled `/dimension` command.  
-This command splits into three sub commands. `/dimension worlds`, `/dimension types` and `/dimension generators`.
+Most of the mod's features can be used with the vanilla styled `/dimension` command. There is an alias for that command simply called `/dimenager` after the mod.  
+This command splits iinto three sub commands: `/dimension worlds`, `/dimension types` and `/dimension generators`.
 ### Syntax tree
 ```
 /dimension
@@ -34,12 +34,13 @@ This command splits into three sub commands. `/dimension worlds`, `/dimension ty
     ├──	modify // TODO
     ├──	list                                   Lists available generators
     └──	types                                  Lists available generator types
+/dimenager -> /dimension
 ```
 ## Changes in the `/tp` command
 **You can disable this feature in the mod's configuration by setting the `modifyTpCommand` option to `false` and restarting the game.**  
 The mod also modifies Minecraft's `/teleport` (aka `/tp`) command. It allows you to simply teleport to other dimensions using the `/tp` command instead of long `/execute` commands.  
 ### Examples  
-| Vanilla | Dimension Manager  |
+| Vanilla | Dimenager  |
 |---|---|
 | `/execute in minecraft:the_nether run tp ~ ~ ~` | `/tp minecraft:the_nether` |
 | `/execute in minecraft:the_end run tp 118 65 224` | `/tp minecraft:the_end 118 65 224` |
