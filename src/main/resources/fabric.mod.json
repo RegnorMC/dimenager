@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
 
-  "id": "dimension-manager",
+  "id": "dimenager",
   "version": "0.0.1",
   "name": "Dimension Manager",
   "description": "A fabric mod that lets you manage dimensions in Minecraft. Modern alternative of Multiverse.",
@@ -16,11 +16,11 @@
   "environment": "server",
   "entrypoints": {
     "server": [
-      "com.beetmacol.mc.dimensions.DimensionManager::init"
+      "com.beetmacol.mc.dimenager.Dimenager::init"
     ]
   },
   "mixins": [
-    "dimension-manager.mixins.json"
+    "dimenager.mixins.json"
   ],
 
   "depends": {

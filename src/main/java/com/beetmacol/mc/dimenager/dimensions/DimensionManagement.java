@@ -1,8 +1,7 @@
-package com.beetmacol.mc.dimensions.dimensions;
+package com.beetmacol.mc.dimenager.dimensions;
 
-import com.beetmacol.mc.dimensions.mixin.MinecraftServerAccessor;
+import com.beetmacol.mc.dimenager.mixin.MinecraftServerAccessor;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.ComponentUtils;

@@ -1,6 +1,6 @@
-package com.beetmacol.mc.dimensions.mixin;
+package com.beetmacol.mc.dimenager.mixin;
 
-import com.beetmacol.mc.dimensions.commands.DimensionCommand;
+import com.beetmacol.mc.dimenager.commands.DimensionCommand;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;

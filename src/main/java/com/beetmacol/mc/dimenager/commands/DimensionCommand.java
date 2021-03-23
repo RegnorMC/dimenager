@@ -1,6 +1,6 @@
-package com.beetmacol.mc.dimensions.commands;
+package com.beetmacol.mc.dimenager.commands;
 
-import com.beetmacol.mc.dimensions.dimensions.DimensionManagement;
+import com.beetmacol.mc.dimenager.dimensions.DimensionManagement;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -8,12 +8,12 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 public class DimensionCommand {
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-		dispatcher.register(Commands.literal("dimension")
+		LiteralCommandNode<CommandSourceStack> dimensionCommandNode = dispatcher.register(Commands.literal("dimension")
 				.requires(source -> source.hasPermission(2))
 				.then(Commands.literal("worlds")
 						.then(Commands.literal("add")
@@ -108,6 +108,7 @@ public class DimensionCommand {
 						)
 				)
 		);
+		dispatcher.register(Commands.literal("dimenager").requires(source -> source.hasPermission(2)).redirect(dimensionCommandNode));
 	}
 
 	private static CompletableFuture<Suggestions> customDimensionSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {

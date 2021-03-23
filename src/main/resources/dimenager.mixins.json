@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.beetmacol.mc.dimensions.mixin",
+  "package": "com.beetmacol.mc.dimenager.mixin",
   "compatibilityLevel": "JAVA_8",
   "server": [
   ],

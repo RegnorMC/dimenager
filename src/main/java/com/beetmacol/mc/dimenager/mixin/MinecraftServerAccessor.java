@@ -1,4 +1,4 @@
-package com.beetmacol.mc.dimensions.mixin;
+package com.beetmacol.mc.dimenager.mixin;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelStorageSource;
