@@ -1,7 +1,7 @@
 package com.beetmacol.mc.dimenager.commands;
 
 import com.beetmacol.mc.dimenager.Dimenager;
-import com.beetmacol.mc.dimenager.dimensions.DimensionRepository;
+import com.beetmacol.mc.dimenager.dimensions.GeneratedDimension;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -41,7 +41,7 @@ public class DimensionCommand {
 						.then(Commands.literal("remove")
 								.then(Commands.argument("dimension", DimensionArgument.dimension())
 										.suggests(DimensionCommand::customDimensionSuggestions)
-										.executes(context -> 0)
+										.executes(context -> Dimenager.dimensionRepository.deleteDimension(context.getSource(), getGeneratedDimension(context, "dimension")))
 								)
 						)
 						.then(Commands.literal("list")
@@ -98,8 +98,8 @@ public class DimensionCommand {
 										.executes(context -> 0)
 								)
 						)
-						.then(Commands.literal("modify")
-								// TODO `/dimension generators modify`. Here and in README.md.
+						.then(Commands.literal("data")
+								// TODO `/dimension generators data`. Here and in README.md.
 						)
 						.then(Commands.literal("list")
 								.executes(context -> 0)
@@ -139,12 +139,23 @@ public class DimensionCommand {
 		return builder.buildFuture();
 	}
 
+	private static final DynamicCommandExceptionType INVALID_DIMENSION = new DynamicCommandExceptionType(identifier -> new TextComponent("Unknown dimension '" + identifier + "'"));
+	private static final DynamicCommandExceptionType CONFIGURED_DIMENSION = new DynamicCommandExceptionType(identifier -> new TextComponent("Dimension '" + identifier + "' is a configured dimension - please provide a dimension created using Dimenager"));
+	private static GeneratedDimension getGeneratedDimension(CommandContext<CommandSourceStack> context, String argument) throws CommandSyntaxException {
+		ResourceLocation identifier = context.getArgument(argument, ResourceLocation.class);
+		if (!Dimenager.dimensionRepository.contains(identifier))
+			throw INVALID_DIMENSION.create(identifier);
+		GeneratedDimension dimension = Dimenager.dimensionRepository.getGeneratedDimension(identifier);
+		if (dimension == null)
+			throw CONFIGURED_DIMENSION.create(identifier);
+		return dimension;
+	}
 
 	private static final DynamicCommandExceptionType INVALID_DIMENSION_TYPE = new DynamicCommandExceptionType(identifier -> new TextComponent("Unknown dimension type '" + identifier + "'"));
 	private static DimensionType getDimensionType(CommandContext<CommandSourceStack> context, String argument) throws CommandSyntaxException {
 		ResourceLocation identifier = context.getArgument(argument, ResourceLocation.class);
 		Registry<DimensionType> dimensionTypeRegistry = context.getSource().getServer().registryAccess().dimensionTypes();
-		if (!dimensionTypeRegistry.keySet().contains(identifier))
+		if (!dimensionTypeRegistry.containsKey(identifier))
 			throw INVALID_DIMENSION_TYPE.create(identifier);
 		return dimensionTypeRegistry.get(identifier);
 	}

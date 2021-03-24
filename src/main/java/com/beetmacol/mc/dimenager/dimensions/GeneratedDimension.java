@@ -45,6 +45,11 @@ public class GeneratedDimension {
 		}
 	}
 
+	@SuppressWarnings("ResultOfMethodCallIgnored")
+	public void removeFile() {
+		file.delete();
+	}
+
 	public ResourceLocation getIdentifier() {
 		return identifier;
 	}

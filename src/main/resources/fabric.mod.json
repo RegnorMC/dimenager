@@ -13,9 +13,9 @@
   },
   "license": "BSD-3-Clause-Clear",
 
-  "environment": "server",
+  "environment": "*",
   "entrypoints": {
-    "server": [
+    "main": [
       "com.beetmacol.mc.dimenager.Dimenager::init"
     ]
   },

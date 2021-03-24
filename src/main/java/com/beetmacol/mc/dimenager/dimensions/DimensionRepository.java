@@ -66,7 +66,7 @@ public class DimensionRepository {
 							boolean enabled = GsonHelper.getAsBoolean(json, "enabled", true);
 							ResourceLocation dimensionTypeIdentifier = new ResourceLocation(GsonHelper.getAsString(json, "dimension_type"));
 							ResourceLocation generatorIdentifier = new ResourceLocation(GsonHelper.getAsString(json, "generator"));
-							ResourceLocation identifier = new ResourceLocation(dimensionDirectory.getName(), FilenameUtils.removeExtension(file.getName()));
+							ResourceLocation identifier = new ResourceLocation(namespaceDirectory.getName(), FilenameUtils.removeExtension(file.getName()));
 							addGeneratedDimension(identifier, enabled, dimensionTypeIdentifier, generatorIdentifier);
 						} catch (IllegalStateException | JsonSyntaxException exception) {
 							Dimenager.LOGGER.error("Could not read json from file " + file.getPath(), exception);
@@ -90,12 +90,14 @@ public class DimensionRepository {
 		generatedDimensions.put(identifier, generatedDimension);
 	}
 
+	private void removeGeneratedDimension(GeneratedDimension dimension) {
+		dimension.removeFile();
+	}
+
 	public int createDimension(CommandSourceStack source, ResourceLocation identifier, DimensionType dimensionType, ResourceLocation dimensionTypeIdentifier) {
-		for (ResourceLocation anotherIdentifier : dimensions.keySet()) {
-			if (identifier.equals(anotherIdentifier)) {
-				source.sendFailure(new TextComponent("A dimension with id '" + anotherIdentifier.toString() + "' already exists"));
-				return 0;
-			}
+		if (dimensions.containsKey(identifier)) {
+			source.sendFailure(new TextComponent("A dimension with id '" + identifier.toString() + "' already exists"));
+			return 0;
 		}
 		ResourceKey<Level> resourceKey = ResourceKey.create(Registry.DIMENSION_REGISTRY, identifier);
 		addGeneratedDimension(identifier, true, dimensionType, dimensionTypeIdentifier, new ResourceLocation("minecraft:overworld"));
@@ -112,6 +114,14 @@ public class DimensionRepository {
 		return 1;
 	}
 
+	public int deleteDimension(CommandSourceStack source, GeneratedDimension dimension) {
+		dimensions.remove(dimension.getIdentifier());
+		generatedDimensions.remove(dimension.getIdentifier());
+		removeGeneratedDimension(dimension);
+		source.sendSuccess(new TextComponent("Removed the dimension with id '" + dimension.getIdentifier() + "'."), false);
+		return 1;
+	}
+
 	public int listDimensions(CommandSourceStack source) {
 		Collection<ResourceLocation> identifiers = dimensions.keySet();
 		if (dimensions.isEmpty())
@@ -121,8 +131,16 @@ public class DimensionRepository {
 		return dimensions.size();
 	}
 
-	public Path generatedDimensionPath(ResourceLocation identifier) {
-		return generatedDirectory.resolve(identifier.getNamespace()).resolve("dimensions").resolve(identifier.getPath() + ".json");
+	public GeneratedDimension getDimension(ResourceLocation identifier) {
+		return generatedDimensions.get(identifier);
+	}
+
+	public GeneratedDimension getGeneratedDimension(ResourceLocation identifier) {
+		return generatedDimensions.get(identifier);
+	}
+
+	public boolean contains(ResourceLocation identifier) {
+		return dimensions.containsKey(identifier);
 	}
 
 	public Collection<ResourceLocation> getDimensionIdentifiers() {
