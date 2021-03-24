@@ -43,37 +43,39 @@ public abstract class TeleportCommandMixin {
 			locals = LocalCapture.CAPTURE_FAILHARD
 	)
 	private static void register(CommandDispatcher<CommandSourceStack> commandDispatcher, CallbackInfo ci, LiteralCommandNode<CommandSourceStack> teleportCommandNode) {
-		// tp <dimension> ...
-		teleportCommandNode
-				.addChild(Commands.argument("dimension", DimensionArgument.dimension())
-						.executes(context -> teleport(context.getSource(), DimensionArgument.getDimension(context, "dimension"), null, null))
-						.then(Commands.argument("location", Vec3Argument.vec3())
-								.executes(context -> teleport(context.getSource(), DimensionArgument.getDimension(context, "dimension"), Vec3Argument.getCoordinates(context, "location"), null))
-								.then(Commands.argument("rotation", RotationArgument.rotation())
-										.executes(context -> teleport(context.getSource(), DimensionArgument.getDimension(context, "dimension"), Vec3Argument.getCoordinates(context, "location"), RotationArgument.getRotation(context, "rotation")))
-								)
-						)
-				.build());
+		if (Dimenager.dimenagerConfiguration.isModifyTpCommand()) {
+			// tp <dimension> ...
+			teleportCommandNode
+					.addChild(Commands.argument("dimension", DimensionArgument.dimension())
+							.executes(context -> teleport(context.getSource(), DimensionArgument.getDimension(context, "dimension"), null, null))
+							.then(Commands.argument("location", Vec3Argument.vec3())
+									.executes(context -> teleport(context.getSource(), DimensionArgument.getDimension(context, "dimension"), Vec3Argument.getCoordinates(context, "location"), null))
+									.then(Commands.argument("rotation", RotationArgument.rotation())
+											.executes(context -> teleport(context.getSource(), DimensionArgument.getDimension(context, "dimension"), Vec3Argument.getCoordinates(context, "location"), RotationArgument.getRotation(context, "rotation")))
+									)
+							)
+							.build());
 
-		// tp <targets> <dimension> ...
-		teleportCommandNode
-				.getChild("targets").addChild(Commands.argument("dimension", DimensionArgument.dimension())
-						.executes(context -> teleport(context.getSource(), EntityArgument.getEntities(context, "targets"), DimensionArgument.getDimension(context, "dimension"), null, null))
-						.then(Commands.argument("location", Vec3Argument.vec3())
-								.executes(context -> teleport(context.getSource(), EntityArgument.getEntities(context, "targets"), DimensionArgument.getDimension(context, "dimension"), Vec3Argument.getCoordinates(context, "location"), null))
-								.then(Commands.argument("rotation", RotationArgument.rotation())
-										.executes(context -> teleport(context.getSource(), EntityArgument.getEntities(context, "targets"), DimensionArgument.getDimension(context, "dimension"), Vec3Argument.getCoordinates(context, "location"), RotationArgument.getRotation(context, "rotation")))
-								)
-						)
-				.build());
+			// tp <targets> <dimension> ...
+			teleportCommandNode
+					.getChild("targets").addChild(Commands.argument("dimension", DimensionArgument.dimension())
+					.executes(context -> teleport(context.getSource(), EntityArgument.getEntities(context, "targets"), DimensionArgument.getDimension(context, "dimension"), null, null))
+					.then(Commands.argument("location", Vec3Argument.vec3())
+							.executes(context -> teleport(context.getSource(), EntityArgument.getEntities(context, "targets"), DimensionArgument.getDimension(context, "dimension"), Vec3Argument.getCoordinates(context, "location"), null))
+							.then(Commands.argument("rotation", RotationArgument.rotation())
+									.executes(context -> teleport(context.getSource(), EntityArgument.getEntities(context, "targets"), DimensionArgument.getDimension(context, "dimension"), Vec3Argument.getCoordinates(context, "location"), RotationArgument.getRotation(context, "rotation")))
+							)
+					)
+					.build());
 
-		// tp <location> <rotation>
-		teleportCommandNode
-				.getChild("location").addChild(Commands.argument("rotation", RotationArgument.rotation())
-						.executes(context -> teleport(context.getSource(), context.getSource().getLevel(), Vec3Argument.getCoordinates(context, "location"), RotationArgument.getRotation(context, "rotation")))
-				.build());
+			// tp <location> <rotation>
+			teleportCommandNode
+					.getChild("location").addChild(Commands.argument("rotation", RotationArgument.rotation())
+					.executes(context -> teleport(context.getSource(), context.getSource().getLevel(), Vec3Argument.getCoordinates(context, "location"), RotationArgument.getRotation(context, "rotation")))
+					.build());
 
-		Dimenager.LOGGER.info("Added the 'dimension' arguments to the `/teleport` command; You can disable this in the mod's configuration file");
+			Dimenager.LOGGER.info("Added the 'dimension' arguments to the `/teleport` command; You can disable this in the mod's configuration file");
+		}
 	}
 
 	private static int teleport(CommandSourceStack source, Collection<? extends Entity> targets, ServerLevel dimension, @Nullable Coordinates location, @Nullable Coordinates rotation) {

@@ -4,7 +4,7 @@
   "id": "dimenager",
   "version": "0.0.1",
   "name": "Dimenager",
-  "description": "A fabric mod that lets you manage dimensions in Minecraft. Modern alternative of Multiverse.",
+  "description": "A server-side, command based dimension manager for your server or single-player world. Create, remove and modify dimensions in-game.",
   "authors": [
     "BeetMacol"
   ],

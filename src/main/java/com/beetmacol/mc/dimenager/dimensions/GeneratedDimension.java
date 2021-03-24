@@ -65,15 +65,12 @@ public class GeneratedDimension {
 		this.enabled = enabled;
 	}
 
-	public void setType(DimensionType type) {
+	public void setType(ResourceLocation typeIdentifier, DimensionType type) {
+		this.typeIdentifier = typeIdentifier;
 		this.type = type;
 	}
 
-	public void setTypeIdentifier(ResourceLocation typeIdentifier) {
-		this.typeIdentifier = typeIdentifier;
-	}
-
-	public void setGeneratorIdentifier(ResourceLocation generatorIdentifier) {
+	public void setGenerator(ResourceLocation generatorIdentifier) {
 		this.generatorIdentifier = generatorIdentifier;
 	}
 }

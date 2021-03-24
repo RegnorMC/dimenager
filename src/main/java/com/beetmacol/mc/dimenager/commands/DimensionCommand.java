@@ -101,7 +101,7 @@ public class DimensionCommand {
 						.then(Commands.literal("modify")
 								// TODO `/dimension generators modify`. Here and in README.md.
 						)
-						.then(Commands.literal("lists")
+						.then(Commands.literal("list")
 								.executes(context -> 0)
 						)
 						.then(Commands.literal("types")
