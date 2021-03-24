@@ -24,7 +24,7 @@ You cannot modify or remove anything that belongs to configured group using Dime
 All generator types are in the configured group because you can only create them in mods.  
 Generated dimensions, dimension types and generators are located in the world's `generated` directory, just like structures created with structure blocks.  
 ## The `/dimension` command
-Most of the mod's features can be used with the vanilla styled `/dimension` command. There is an alias for that command simply called `/dimenager` after the mod.  
+Most of the mod's features can be used with the vanilla styled `/dimension` command.  
 This command splits into three sub commands: `/dimension worlds`, `/dimension types` and `/dimension generators`.
 ### Syntax tree
 ```
@@ -47,7 +47,6 @@ This command splits into three sub commands: `/dimension worlds`, `/dimension ty
     ├──	data // TODO
     ├──	list                                   Lists available generators
     └──	types                                  Lists available generator types
-/dimenager -> /dimension
 ```
 ## Changes in the `/tp` command
 **You can disable this feature in the mod's configuration by setting the `modify_tp_command` option to `false` and restarting the game.**  

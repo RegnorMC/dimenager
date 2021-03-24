@@ -109,7 +109,6 @@ public class DimensionCommand {
 						)
 				)
 		);
-		dispatcher.register(Commands.literal("dimenager").requires(source -> source.hasPermission(2)).redirect(dimensionCommandNode));
 	}
 
 	private static CompletableFuture<Suggestions> customDimensionSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
