@@ -3,16 +3,27 @@ Dimenager is a [Fabric](https://fabricmc.net/) server-side mod that lets you eas
 The mod **does not depend** on any other mods including the [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api).
 ## The concept
 ### Dimensions
-Every dimension is represented with an identifier and contains its own generator settings and is linked to a dimension type. To avoid any confusion `/dimension worlds` is used to manage the dimensions, and is called "worlds" because `/dimension dimensions` would not sound too well.
+Every dimension is represented with an identifier and is linked to generator settings, and a dimension type. To avoid any confusion `/dimension worlds` is used to manage the dimensions, and is called "worlds" because `/dimension dimensions` would not sound too well.  
+A dimension with an identifier `namespace:name` will be stored in `generated/namespace/dimensions/name.json` file and its json will contain identifiers of a dimension type, and a generator as well as a boolean value telling if the dimension is enabled or not  
+Disabled dimensions will not be loaded on server startup, but can still be loaded manually.  
 ### Dimension types
-The dimension types are a collection of properties for your dimensions. I recommend using the `minecraft:overworld` dimension types in most cases. New dimension types will be created with overworld dimension settings, and can be modified later. For the properties list (with comments), see [this section of the ***Custom dimension*** article on the **Official Minecraft Wiki**](https://minecraft.gamepedia.com/Custom_dimension#Syntax). You can also find the settings of the vanilla dimension types there.
+The dimension types are a collection of properties for your dimensions. I recommend using the `minecraft:overworld` dimension types in most cases. New dimension types will be created with Overworld dimension settings, and can be modified later. For the properties list (with comments), see [this section of the ***Custom dimension*** article on the **Official Minecraft Wiki**](https://minecraft.gamepedia.com/Custom_dimension#Syntax). You can also find the settings of the vanilla dimension types there.  
+A dimension type with an identifier `namespace:name` will be stored in `generated/namespace/dimension_types/name.json` file.  
 ### Generators
-The generators simply tell the game how to generate a dimension. Creating a world with a generator and then changing that generator won't change how the dimension generates, because the `/dimension worlds add ...` command creates the exact copy of the given generator. This is not the case in dimension types as the world is linked to a dimension type.  
+**Unlike vanilla, Dimenager's dimensions are linked with a generator instead of having an exact copy of the generator it was created with. If you want to use the same generator for multiple dimensions, note that any changes in that generator will also change the way all the linked dimensions are generated. In some cases you will want to copy that generator and add the changes to the cloned one.**  
+The generators simply tell the game how to generate a dimension. You can consider generators as settings for the generator type, and the generator type as something that reads those settings and generates the world.  
+A generator with an identifier `namespace:name` will be stored in `generated/namespace/generators/name.json` file.  
 ### Generator types
-Every generator is based on a generator type, and contains its properties. The types can only be added by Minecraft or mods. The vanilla generator types are: `minecraft:noise`, `minecraft:flat` and `minecraft:debug`, but the Dimenager also adds `dimenager:empty`, so you don't need to create flat worlds with one air layer (there is also a build-in generator that is based on that generator type).
+Every generator is based on a generator type, and contains its properties. The types can only be added by Minecraft or mods. The vanilla generator types are: `minecraft:noise`, `minecraft:flat` and `minecraft:debug`, but the Dimenager also adds `dimenager:empty`, so you don't need to create flat worlds with one air layer (there is also a build-in generator that is based on that generator type).  
+There are no 'generated' generator types  
+### Configured and Generated
+In code, dimensions, dimension types, generators and generator types divide into configured and generated. Configured ones are created by Minecraft, mods or datapacks and the generated group is the ones created with Dimenager.  
+You cannot modify or remove anything that belongs to configured group using Dimenager.  
+All generator types are in the configured group because you can only create them in mods.  
+Generated dimensions, dimension types and generators are located in the world's `generated` directory, just like structures created with structure blocks.  
 ## The `/dimension` command
 Most of the mod's features can be used with the vanilla styled `/dimension` command. There is an alias for that command simply called `/dimenager` after the mod.  
-This command splits iinto three sub commands: `/dimension worlds`, `/dimension types` and `/dimension generators`.
+This command splits into three sub commands: `/dimension worlds`, `/dimension types` and `/dimension generators`.
 ### Syntax tree
 ```
 /dimension

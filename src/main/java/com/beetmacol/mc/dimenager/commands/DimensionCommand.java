@@ -1,6 +1,7 @@
 package com.beetmacol.mc.dimenager.commands;
 
-import com.beetmacol.mc.dimenager.dimensions.DimensionManagement;
+import com.beetmacol.mc.dimenager.Dimenager;
+import com.beetmacol.mc.dimenager.dimensions.DimensionRepository;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -32,7 +33,7 @@ public class DimensionCommand {
 												.suggests(DimensionCommand::dimensionTypeSuggestions)
 												.then(Commands.argument("generator", ResourceLocationArgument.id())
 														.suggests(DimensionCommand::generatorSuggestions)
-														.executes(context -> DimensionManagement.createDimension(context.getSource(), ResourceLocationArgument.getId(context, "identifier"), getDimensionType(context, "type")))
+														.executes(context -> Dimenager.dimensionRepository.createDimension(context.getSource(), ResourceLocationArgument.getId(context, "identifier"), getDimensionType(context, "type"), ResourceLocationArgument.getId(context, "type")))
 												)
 										)
 								)
@@ -44,7 +45,7 @@ public class DimensionCommand {
 								)
 						)
 						.then(Commands.literal("list")
-								.executes(context -> DimensionManagement.listDimensions(context.getSource()))
+								.executes(context -> Dimenager.dimensionRepository.listDimensions(context.getSource()))
 						)
 				)
 				.then(Commands.literal("types")
