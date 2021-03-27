@@ -2,6 +2,7 @@ package com.beetmacol.mc.dimenager.mixin;
 
 import com.beetmacol.mc.dimenager.Dimenager;
 import com.beetmacol.mc.dimenager.dimensions.DimensionRepository;
+import com.beetmacol.mc.dimenager.generators.GeneratorRepository;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
@@ -30,6 +31,7 @@ public class MinecraftServerMixin {
 	)
 	private void onServerInit(Thread thread, RegistryAccess.RegistryHolder registryHolder, LevelStorageSource.LevelStorageAccess levelStorageAccess, WorldData worldData, PackRepository packRepository, Proxy proxy, DataFixer dataFixer, ServerResources serverResources, MinecraftSessionService minecraftSessionService, GameProfileRepository gameProfileRepository, GameProfileCache gameProfileCache, ChunkProgressListenerFactory chunkProgressListenerFactory, CallbackInfo ci) {
 		Dimenager.dimensionRepository = new DimensionRepository(serverResources.getResourceManager(), levelStorageAccess, ((MinecraftServerAccessor) this).getLevels(), registryHolder.dimensionTypes());
+		Dimenager.generatorRepository = new GeneratorRepository(levelStorageAccess);
 	}
 
 	@Inject(
@@ -37,7 +39,8 @@ public class MinecraftServerMixin {
 			at = @At("TAIL")
 	)
 	private void onLevelsLoad(ChunkProgressListener chunkProgressListener, CallbackInfo ci) {
-		Dimenager.dimensionRepository.reloadDimensions();
+		Dimenager.dimensionRepository.reload();
+		Dimenager.generatorRepository.reload();
 	}
 
 	// MC Dev plugin doesn't recognise lambdas
@@ -48,5 +51,6 @@ public class MinecraftServerMixin {
 	)
 	private void onResourcesReload(Collection<String> collection, ServerResources resources, CallbackInfo ci) {
 		Dimenager.dimensionRepository.resourceManagerReload(resources.getResourceManager());
+		Dimenager.generatorRepository.resourceManagerReload(resources.getResourceManager());
 	}
 }
