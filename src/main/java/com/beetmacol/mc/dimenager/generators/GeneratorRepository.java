@@ -125,4 +125,12 @@ public class GeneratorRepository extends GeneratedRepository<Generator> {
 	public Codec<? extends ChunkGenerator> getGeneratorType(ResourceLocation identifier) {
 		return generatorTypes.get(identifier);
 	}
+
+	public Collection<ResourceLocation> getIdentifiers() {
+		return items.keySet();
+	}
+
+	public Collection<ResourceLocation> generatorTypeIdentifiers() {
+		return generatorTypes.keySet();
+	}
 }

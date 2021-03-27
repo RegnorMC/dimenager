@@ -84,9 +84,11 @@ public class DimensionCommand {
 				.then(Commands.literal("generators")
 						.then(Commands.literal("add")
 								.then(Commands.argument("identifier", ResourceLocationArgument.id())
-										.then(Commands.argument("type", ResourceLocationArgument.id())
-												.suggests(DimensionCommand::generatorTypeSuggestions)
-												.executes(context -> generatorRepository.createGenerator(context.getSource(), ResourceLocationArgument.getId(context, "identifier"), ResourceLocationArgument.getId(context, "type"), getGeneratorCodec(context, "type")))
+										.then(Commands.literal("new")
+												.then(Commands.argument("type", ResourceLocationArgument.id())
+														.suggests(DimensionCommand::generatorTypeSuggestions)
+														.executes(context -> generatorRepository.createGenerator(context.getSource(), ResourceLocationArgument.getId(context, "identifier"), ResourceLocationArgument.getId(context, "type"), getGeneratorCodec(context, "type")))
+												)
 										)
 										.then(Commands.literal("copy")
 												.then(Commands.argument("other", ResourceLocationArgument.id())
@@ -116,6 +118,8 @@ public class DimensionCommand {
 	}
 
 	private static CompletableFuture<Suggestions> customDimensionSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
+		for (ResourceLocation identifier : dimensionRepository.getGeneratedIdentifiers())
+			builder.suggest(identifier.toString());
 		return builder.buildFuture();
 	}
 
@@ -130,15 +134,21 @@ public class DimensionCommand {
 
 
 	private static CompletableFuture<Suggestions> generatorSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
+		for (ResourceLocation identifier : generatorRepository.getIdentifiers())
+			builder.suggest(identifier.toString());
 		return builder.buildFuture();
 	}
 
 	private static CompletableFuture<Suggestions> customGeneratorSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
+		for (ResourceLocation identifier : generatorRepository.getGeneratedIdentifiers())
+			builder.suggest(identifier.toString());
 		return builder.buildFuture();
 	}
 
 
 	private static CompletableFuture<Suggestions> generatorTypeSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
+		for (ResourceLocation identifier : generatorRepository.generatorTypeIdentifiers())
+			builder.suggest(identifier.toString());
 		return builder.buildFuture();
 	}
 

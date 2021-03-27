@@ -41,7 +41,7 @@ This command splits into three sub commands: `/dimension worlds`, `/dimension ty
 │   └──	set <property> <value>                 Changes a property of a dimension type
 └── generators
     ├──	add <identifier>
-    │   ├── <type>                             Creates a generator of given gnerator type
+    │   ├── new <type>                             Creates a generator of given gnerator type
     │   └── copy <other>                       Creates a new generator from another one
     ├──	remove <generator>                     Removes a generator
     ├──	data // TODO
