@@ -2,6 +2,7 @@ package com.beetmacol.mc.dimenager;
 
 import com.beetmacol.mc.dimenager.config.DimenagerConfiguration;
 import com.beetmacol.mc.dimenager.dimensions.DimensionRepository;
+import com.beetmacol.mc.dimenager.dimensiontypes.DimensionTypeRepository;
 import com.beetmacol.mc.dimenager.generators.GeneratorRepository;
 import com.beetmacol.mc.dimenager.generators.VoidGeneratorType;
 import net.minecraft.core.Registry;
@@ -14,6 +15,7 @@ public class Dimenager {
 	public static final Logger LOGGER = LogManager.getLogger("Dimenager Mod");
 	public static DimenagerConfiguration dimenagerConfiguration;
 	public static DimensionRepository dimensionRepository;
+	public static DimensionTypeRepository dimensionTypeRepository;
 	public static GeneratorRepository generatorRepository;
 
 	public static void init() {

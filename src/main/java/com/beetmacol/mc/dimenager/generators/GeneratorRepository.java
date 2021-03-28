@@ -67,11 +67,7 @@ public class GeneratorRepository extends GeneratedRepository<Generator> {
 			return 0;
 		}
 		Gson gson = new Gson();
-		try {
-			addGeneratedItem(new Generator(identifier, generatedDirectory, copied.getTypeIdentifier(), copied.getTypeCodec(), copied.getSettings() != null ? gson.fromJson(gson.toJson(copied.getSettings(), JsonObject.class), JsonObject.class) : null));
-		} catch (Exception exception) {
-			exception.printStackTrace();
-		}
+		addGeneratedItem(new Generator(identifier, generatedDirectory, copied.getTypeIdentifier(), copied.getTypeCodec(), copied.getSettings() != null ? gson.fromJson(gson.toJson(copied.getSettings(), JsonObject.class), JsonObject.class) : null));
 		// settings are deep copied with that weir way because `JsonObject#deepCopy` is public since Gson 2.8.2 and Minecraft uses 2.8.0...
 		source.sendSuccess(new TextComponent("Copied generator '" + copied.getIdentifier() + "' to a new one with id '" + identifier + "'"), false);
 		return 1;

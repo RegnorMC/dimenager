@@ -43,6 +43,10 @@ public abstract class GeneratedAndConfiguredRepository<T extends GeneratedItem, 
 		return items.containsKey(identifier);
 	}
 
+	public boolean containsGenerated(ResourceLocation identifier) {
+		return super.contains(identifier);
+	}
+
 	public U get(ResourceLocation identifier) {
 		return items.get(identifier);
 	}

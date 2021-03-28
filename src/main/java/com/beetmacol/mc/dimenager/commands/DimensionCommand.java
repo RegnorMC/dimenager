@@ -1,6 +1,7 @@
 package com.beetmacol.mc.dimenager.commands;
 
 import com.beetmacol.mc.dimenager.dimensions.GeneratedDimension;
+import com.beetmacol.mc.dimenager.dimensiontypes.GeneratedDimensionType;
 import com.beetmacol.mc.dimenager.generators.Generator;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -14,7 +15,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
-import net.minecraft.core.Registry;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -22,8 +22,7 @@ import net.minecraft.world.level.dimension.DimensionType;
 
 import java.util.concurrent.CompletableFuture;
 
-import static com.beetmacol.mc.dimenager.Dimenager.dimensionRepository;
-import static com.beetmacol.mc.dimenager.Dimenager.generatorRepository;
+import static com.beetmacol.mc.dimenager.Dimenager.*;
 
 @SuppressWarnings("SameParameterValue")
 public class DimensionCommand {
@@ -55,11 +54,11 @@ public class DimensionCommand {
 				.then(Commands.literal("types")
 						.then(Commands.literal("add")
 								.then(Commands.argument("identifier", ResourceLocationArgument.id())
-										.executes(context -> 0)
+										.executes(context -> dimensionTypeRepository.createDimensionType(context.getSource(), ResourceLocationArgument.getId(context, "identifier")))
 										.then(Commands.literal("copy")
 												.then(Commands.argument("other", ResourceLocationArgument.id())
 														.suggests(DimensionCommand::dimensionTypeSuggestions)
-														.executes(context -> 0)
+														.executes(context -> dimensionTypeRepository.createDimensionType(context.getSource(), ResourceLocationArgument.getId(context, "identifier"), ResourceLocationArgument.getId(context, "copied"), getDimensionType(context, "other")))
 												)
 										)
 								)
@@ -67,11 +66,11 @@ public class DimensionCommand {
 						.then(Commands.literal("remove")
 								.then(Commands.argument("type", ResourceLocationArgument.id())
 										.suggests(DimensionCommand::customDimensionTypeSuggestions)
-										.executes(context -> 0)
+										.executes(context -> dimensionTypeRepository.deleteDimensionType(context.getSource(), getGeneratedDimensionType(context, "type")))
 								)
 						)
 						.then(Commands.literal("list")
-								.executes(context -> 0)
+								.executes(context -> dimensionTypeRepository.listDimensionTypes(context.getSource()))
 						)
 						.then(Commands.literal("set")
 								.then(Commands.argument("property", StringArgumentType.string())
@@ -125,10 +124,14 @@ public class DimensionCommand {
 
 
 	private static CompletableFuture<Suggestions> dimensionTypeSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
+		for (ResourceLocation identifier : dimensionTypeRepository.getIdentifiers())
+			builder.suggest(identifier.toString());
 		return builder.buildFuture();
 	}
 
 	private static CompletableFuture<Suggestions> customDimensionTypeSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
+		for (ResourceLocation identifier : dimensionTypeRepository.getGeneratedIdentifiers())
+			builder.suggest(identifier.toString());
 		return builder.buildFuture();
 	}
 
@@ -167,10 +170,18 @@ public class DimensionCommand {
 	private static final DynamicCommandExceptionType INVALID_DIMENSION_TYPE = new DynamicCommandExceptionType(identifier -> new TextComponent("Unknown dimension type '" + identifier + "'"));
 	private static DimensionType getDimensionType(CommandContext<CommandSourceStack> context, String argument) throws CommandSyntaxException {
 		ResourceLocation identifier = context.getArgument(argument, ResourceLocation.class);
-		Registry<DimensionType> dimensionTypeRegistry = context.getSource().getServer().registryAccess().dimensionTypes();
-		if (!dimensionTypeRegistry.containsKey(identifier))
+		if (!dimensionTypeRepository.contains(identifier))
 			throw INVALID_DIMENSION_TYPE.create(identifier);
-		return dimensionTypeRegistry.get(identifier);
+		return dimensionTypeRepository.get(identifier);
+	}
+
+	private static final DynamicCommandExceptionType CONFIGURED_DIMENSION_TYPE = new DynamicCommandExceptionType(identifier -> new TextComponent("Dimension type '" + identifier + "' is a configured dimension type - please provide a type created using Dimenager"));
+	private static GeneratedDimensionType getGeneratedDimensionType(CommandContext<CommandSourceStack> context, String argument) throws CommandSyntaxException {
+		getDimensionType(context, argument);
+		ResourceLocation identifier = context.getArgument(argument, ResourceLocation.class);
+		if (!dimensionTypeRepository.containsGenerated(identifier))
+			throw CONFIGURED_GENERATOR.create(identifier);
+		return dimensionTypeRepository.getGenerated(identifier);
 	}
 
 	private static final DynamicCommandExceptionType INVALID_GENERATOR = new DynamicCommandExceptionType(identifier -> new TextComponent("Unknown generator '" + identifier + "'"));

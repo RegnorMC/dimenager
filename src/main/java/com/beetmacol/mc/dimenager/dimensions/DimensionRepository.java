@@ -29,10 +29,6 @@ public class DimensionRepository extends GeneratedAndConfiguredRepository<Genera
 		this.dimensionTypeRegistry = dimensionTypeRegistry;
 	}
 
-	private void removeGeneratedDimension(GeneratedDimension dimension) {
-		dimension.removeFile();
-	}
-
 	@Override
 	protected GeneratedDimension fromJson(ResourceLocation identifier, JsonObject json) throws JsonSyntaxException {
 		boolean enabled = GsonHelper.getAsBoolean(json, "enabled", true);
@@ -71,7 +67,7 @@ public class DimensionRepository extends GeneratedAndConfiguredRepository<Genera
 	public int deleteDimension(CommandSourceStack source, GeneratedDimension dimension) {
 		items.remove(dimension.getIdentifier());
 		generatedItems.remove(dimension.getIdentifier());
-		removeGeneratedDimension(dimension);
+		dimension.removeFile();
 		source.sendSuccess(new TextComponent("Removed the dimension with id '" + dimension.getIdentifier() + "'"), false);
 		return 1;
 	}
