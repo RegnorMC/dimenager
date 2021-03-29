@@ -1,3 +1,4 @@
 {
-  "modify_tp_command": true
+  "modify_tp_command": true,
+  "remove_command_ambiguity_warns": false
 }

@@ -7,10 +7,11 @@
     "defaultRequire": 1
   },
   "mixins": [
+    "AmbiguityWarningRemovalMixin",
     "CommandRegistrationMixin",
     "MinecraftServerAccessor",
-    "TeleportCommandMixin",
     "MinecraftServerMixin",
+    "TeleportCommandMixin",
     "WorldCoordinatesAccessor"
   ]
 }

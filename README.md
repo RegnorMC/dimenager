@@ -64,7 +64,8 @@ Another minor change it brings to `/tp` is `/teleport <position> <rotation>`. Va
 | `/tp @s ~ ~ ~ 90 0` | `/tp ~ ~ ~ 90 0` |
 ### Downsides
 There are some downsides of those `/tp` changes. The biggest one is the ambiguity it creates for the arguments. For example when you try to use command `/tp overworld` to teleport to the Overworld dimension, the game will think you are trying to teleport to a player called `overworld`, even if it doesn't exist. You can simply use the namespaces and autocompletion adds them for you, but it can cause some problems or misunderstanding anyways. Minecraft also spams 10 lines to the console every time you start the server about the ambiguities in the command. Vanilla `/tp` also causes some of those warnings by itself, but the dimension argument adds a few more lines of ambiguity warnings.  
-To disable the `/tp` modifications set `modify_tp_command` to false in the mod configuration located in `config/dimenager.json`. That will make all the ambiguities added by Dimenager disappear.
+To disable the `/tp` modifications set `modify_tp_command` to false in the mod configuration located in `config/dimenager.json`. That will make all the ambiguities added by Dimenager disappear.  
+If you want to have the modifications but also hate any useless warnings, you can disable all command ambiguity warnings using the `remove_command_ambiguity_warns` option in the mod configuration.  
 <details>
   <summary>The console spam comparison</summary>
 

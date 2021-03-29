@@ -16,14 +16,17 @@ import java.net.URL;
 
 public class DimenagerConfiguration {
 	private final boolean modifyTpCommand;
+	private final boolean removeAmbiguityWarnings;
 
-	public DimenagerConfiguration(boolean modifyTpCommand) {
+	public DimenagerConfiguration(boolean modifyTpCommand, boolean removeAmbiguityWarnings) {
 		this.modifyTpCommand = modifyTpCommand;
+		this.removeAmbiguityWarnings = removeAmbiguityWarnings;
 	}
 
 	public static DimenagerConfiguration fromJson(JsonObject jsonObject) throws JsonSyntaxException {
 		return new DimenagerConfiguration(
-				GsonHelper.getAsBoolean(jsonObject, "modify_tp_command", true)
+				GsonHelper.getAsBoolean(jsonObject, "modify_tp_command", true),
+				GsonHelper.getAsBoolean(jsonObject, "remove_command_ambiguity_warns", false)
 		);
 	}
 
@@ -54,10 +57,14 @@ public class DimenagerConfiguration {
 	}
 
 	public static DimenagerConfiguration hardcodedDefaultConfiguration() {
-		return new DimenagerConfiguration(true);
+		return new DimenagerConfiguration(true, false);
 	}
 
 	public boolean isModifyTpCommand() {
 		return modifyTpCommand;
+	}
+
+	public boolean isRemoveAmbiguityWarnings() {
+		return removeAmbiguityWarnings;
 	}
 }
