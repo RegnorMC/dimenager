@@ -17,7 +17,7 @@ A dimension type with an identifier `namespace:name` will be stored in `generate
 **Unlike vanilla, Dimenager's dimensions are linked with a generator instead of having an exact copy of the generator it was created with. If you want to use the same generator for multiple dimensions, note that any changes in that generator will also change the way all the linked dimensions are generated. In some cases you will want to copy that generator and add the changes to the cloned one.**  
 The generators simply tell the game how to generate a dimension. You can consider generators as settings for the generator type, and the generator type as something that reads those settings and generates the world.  
 A generator with an identifier `namespace:name` will be stored in `generated/namespace/generators/name.json` file.  
-The only 'configured' (hardcoded) generators are instances of the generator types with their default values. You can use `dimenager:void` generator to create void/empty worlds.   
+The only 'configured' (hardcoded) generators are reflecting generators of configured dimensions (e.g. the generator `minecraft:overworld` will be a copy of Overworld's generator) and also the `dimenager:void` generator which can be used to create void/empty worlds.  
 ### Generator types
 Every generator is based on a generator type, and contains its properties. The types can only be added by Minecraft or mods. The vanilla generator types are: `minecraft:noise`, `minecraft:flat` and `minecraft:debug`, but the Dimenager also adds `dimenager:void`, so you don't need to create flat worlds with one air layer (there is also a build-in generator that is based on that generator type).  
 There are no 'generated' generator types  

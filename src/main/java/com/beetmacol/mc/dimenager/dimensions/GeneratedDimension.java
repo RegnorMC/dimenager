@@ -1,6 +1,7 @@
 package com.beetmacol.mc.dimenager.dimensions;
 
 import com.beetmacol.mc.dimenager.GeneratedItem;
+import com.beetmacol.mc.dimenager.generators.Generator;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -10,15 +11,15 @@ import java.nio.file.Path;
 public class GeneratedDimension extends GeneratedItem {
 	private DimensionType type;
 	private ResourceLocation typeIdentifier;
-	private ResourceLocation generatorIdentifier; // Temporarily an identifier. Will be a Generator as soon as I create the Generator class.
+	private Generator generator; // Temporarily an identifier. Will be a Generator as soon as I create the Generator class.
 	private boolean enabled;
 
-	public GeneratedDimension(ResourceLocation identifier, Path generatedDirectory, boolean enabled, DimensionType type, ResourceLocation typeIdentifier, ResourceLocation generatorIdentifier) {
+	public GeneratedDimension(ResourceLocation identifier, Path generatedDirectory, boolean enabled, DimensionType type, ResourceLocation typeIdentifier, Generator generator) {
 		super(identifier, generatedDirectory, "dimension");
 		this.enabled = enabled;
 		this.type = type;
 		this.typeIdentifier = typeIdentifier;
-		this.generatorIdentifier = generatorIdentifier;
+		this.generator = generator;
 	}
 
 	@Override
@@ -26,7 +27,7 @@ public class GeneratedDimension extends GeneratedItem {
 		JsonObject json = new JsonObject();
 		json.addProperty("enabled", enabled);
 		json.addProperty("dimension_type", typeIdentifier.toString());
-		json.addProperty("generator", generatorIdentifier.toString());
+		json.addProperty("generator", generator.getIdentifier().toString());
 		return json;
 	}
 
@@ -38,8 +39,8 @@ public class GeneratedDimension extends GeneratedItem {
 		return typeIdentifier;
 	}
 
-	public ResourceLocation getGeneratorIdentifier() {
-		return generatorIdentifier;
+	public Generator getGenerator() {
+		return generator;
 	}
 
 	public boolean isEnabled() {
@@ -52,8 +53,8 @@ public class GeneratedDimension extends GeneratedItem {
 		saveToFile();
 	}
 
-	public void setGenerator(ResourceLocation generatorIdentifier) {
-		this.generatorIdentifier = generatorIdentifier;
+	public void setGenerator(Generator generator) {
+		this.generator = generator;
 		saveToFile();
 	}
 

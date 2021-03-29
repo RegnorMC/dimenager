@@ -23,6 +23,11 @@ public abstract class GeneratedAndConfiguredRepository<T extends GeneratedItem, 
 		items.put(item.getIdentifier(), null);
 	}
 
+	public void addGeneratedItem(T generatedItem, U item) {
+		super.addGeneratedItem(generatedItem);
+		items.put(generatedItem.getIdentifier(), item);
+	}
+
 	@Override
 	public void resourceManagerReload(ResourceManager resourceManager) {
 		this.resourceManager = resourceManager;

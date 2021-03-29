@@ -1,6 +1,5 @@
 package com.beetmacol.mc.dimenager.mixin;
 
-import com.beetmacol.mc.dimenager.Dimenager;
 import com.beetmacol.mc.dimenager.dimensions.DimensionRepository;
 import com.beetmacol.mc.dimenager.dimensiontypes.DimensionTypeRepository;
 import com.beetmacol.mc.dimenager.generators.GeneratorRepository;
@@ -25,6 +24,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.net.Proxy;
 import java.util.Collection;
 
+import static com.beetmacol.mc.dimenager.Dimenager.*;
+
 @Mixin(MinecraftServer.class)
 public class MinecraftServerMixin {
 	@Shadow private ServerResources resources;
@@ -34,9 +35,10 @@ public class MinecraftServerMixin {
 			at = @At("TAIL")
 	)
 	private void onServerInit(Thread thread, RegistryAccess.RegistryHolder registryHolder, LevelStorageSource.LevelStorageAccess levelStorageAccess, WorldData worldData, PackRepository packRepository, Proxy proxy, DataFixer dataFixer, ServerResources serverResources, MinecraftSessionService minecraftSessionService, GameProfileRepository gameProfileRepository, GameProfileCache gameProfileCache, ChunkProgressListenerFactory chunkProgressListenerFactory, CallbackInfo ci) {
-		Dimenager.dimensionRepository = new DimensionRepository(serverResources.getResourceManager(), levelStorageAccess, ((MinecraftServerAccessor) this).getLevels(), registryHolder.dimensionTypes());
-		Dimenager.dimensionTypeRepository = new DimensionTypeRepository(resources.getResourceManager(), levelStorageAccess, registryHolder.dimensionTypes());
-		Dimenager.generatorRepository = new GeneratorRepository(levelStorageAccess);
+		dimensionRepository = new DimensionRepository(serverResources.getResourceManager(), levelStorageAccess, ((MinecraftServerAccessor) this).getLevels(), registryHolder.dimensionTypes());
+		dimensionTypeRepository = new DimensionTypeRepository(resources.getResourceManager(), levelStorageAccess, registryHolder.dimensionTypes());
+		generatorRepository = new GeneratorRepository(levelStorageAccess, registryHolder);
+		dimensionTypeRepository.reload();
 	}
 
 	@Inject(
@@ -44,9 +46,9 @@ public class MinecraftServerMixin {
 			at = @At("TAIL")
 	)
 	private void onLevelsLoad(ChunkProgressListener chunkProgressListener, CallbackInfo ci) {
-		Dimenager.dimensionRepository.reload();
-		Dimenager.dimensionTypeRepository.reload();
-		Dimenager.generatorRepository.reload();
+		generatorRepository.addDimensionMirrorGenerators(((MinecraftServerAccessor) this).getLevels());
+		dimensionRepository.reload();
+		dimensionRepository.createLevels(chunkProgressListener, (MinecraftServer) (Object) this);
 	}
 
 	// MC Dev plugin doesn't recognise lambdas
@@ -56,8 +58,8 @@ public class MinecraftServerMixin {
 			at = @At("TAIL")
 	)
 	private void onResourcesReload(Collection<String> collection, ServerResources resources, CallbackInfo ci) {
-		Dimenager.dimensionRepository.resourceManagerReload(resources.getResourceManager());
-		Dimenager.dimensionTypeRepository.resourceManagerReload(resources.getResourceManager());
-		Dimenager.generatorRepository.resourceManagerReload(resources.getResourceManager());
+		dimensionRepository.resourceManagerReload(resources.getResourceManager());
+		dimensionTypeRepository.resourceManagerReload(resources.getResourceManager());
+		generatorRepository.resourceManagerReload(resources.getResourceManager());
 	}
 }

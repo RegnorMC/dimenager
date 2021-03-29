@@ -36,7 +36,7 @@ public class DimensionCommand {
 												.suggests(DimensionCommand::dimensionTypeSuggestions)
 												.then(Commands.argument("generator", ResourceLocationArgument.id())
 														.suggests(DimensionCommand::generatorSuggestions)
-														.executes(context -> dimensionRepository.createDimension(context.getSource(), ResourceLocationArgument.getId(context, "identifier"), getDimensionType(context, "type"), ResourceLocationArgument.getId(context, "type")))
+														.executes(context -> dimensionRepository.createDimension(context.getSource(), ResourceLocationArgument.getId(context, "identifier"), getDimensionType(context, "type"), ResourceLocationArgument.getId(context, "type"), getGenerator(context, "generator")))
 												)
 										)
 								)

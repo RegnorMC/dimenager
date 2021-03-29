@@ -3,6 +3,7 @@ package com.beetmacol.mc.dimenager.generators;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.RegistryLookupCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
@@ -22,8 +23,11 @@ import net.minecraft.world.level.levelgen.StructureSettings;
 import java.util.HashMap;
 import java.util.Optional;
 
+import static com.beetmacol.mc.dimenager.Dimenager.MOD_ID;
+
 public class VoidGeneratorType extends ChunkGenerator {
 	public static final Codec<VoidGeneratorType> CODEC = RegistryLookupCodec.create(Registry.BIOME_REGISTRY).xmap(VoidGeneratorType::new, VoidGeneratorType::biomes).stable().codec();
+	public static final ResourceLocation IDENTIFIER = new ResourceLocation(MOD_ID, "void");
 	private final Registry<Biome> biomes;
 
 	public VoidGeneratorType(Registry<Biome> registry) {
