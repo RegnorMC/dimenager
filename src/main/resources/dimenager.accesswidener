@@ -1,2 +1,3 @@
 accessWidener v1 named
 accessible class net/minecraft/server/commands/TeleportCommand$LookAt
+accessible    method    net/minecraft/world/level/chunk/ChunkGenerator    codec    ()Lcom/mojang/serialization/Codec;

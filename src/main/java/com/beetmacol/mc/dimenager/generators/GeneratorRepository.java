@@ -5,7 +5,6 @@ import com.beetmacol.mc.dimenager.GeneratedRepository;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.JsonOps;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -23,6 +22,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.beetmacol.mc.dimenager.Dimenager.defaultGeneratorTypeLoader;
+
 public class GeneratorRepository extends GeneratedRepository<Generator> {
 	public static final ResourceLocation VOID = new ResourceLocation(Dimenager.MOD_ID, "void");
 
@@ -36,67 +37,45 @@ public class GeneratorRepository extends GeneratedRepository<Generator> {
 			Codec<? extends ChunkGenerator> codec = Registry.CHUNK_GENERATOR.get(generatorTypeIdentifier);
 			generatorTypes.put(generatorTypeIdentifier, codec);
 		}
-		configuredItems.put(VOID, new Generator(VOID, generatedDirectory, VoidGeneratorType.IDENTIFIER, VoidGeneratorType.CODEC, null, new VoidGeneratorType(registryHolder.registryOrThrow(Registry.BIOME_REGISTRY))));
- 	}
+		configuredItems.put(VOID, new Generator(VOID, generatedDirectory, VoidGeneratorType.IDENTIFIER, VoidGeneratorType.CODEC, new VoidGeneratorType(registryHolder.registryOrThrow(Registry.BIOME_REGISTRY))));
+	}
 
- 	public void addDimensionMirrorGenerators(Map<ResourceKey<Level>, ServerLevel> levels) {
-	    // The following code creates generators that reflect settings of generators in the configured dimensions.
-	    for (Map.Entry<ResourceKey<Level>, ServerLevel> entry : levels.entrySet()) {
-		    ServerLevel serverLevel = entry.getValue();
-		    ResourceLocation identifier = entry.getKey().location();
-		    // We want to add a generator with id of a configured dimension that will reflect settings of that dimension.
-		    // There is a chance that there is a generator type that is called the same as a dimension though.
-		    // E.g if there are a generator type and a dimension with the same id 'minecraft:noise', we will try to call
-		    // the generator reflecting the dimension 'minecraft:noise0', `minecraft:noise1`, ... until we find a free id.
-		    if (configuredItems.containsKey(identifier)) {
-			    ResourceLocation newIdentifier = identifier;
-			    int i = 0;
-			    while (identifier.equals(newIdentifier)) {
-				    ResourceLocation newIdentifierAttempt = new ResourceLocation(identifier.getNamespace(), identifier.getPath() + i++);
-				    if (!configuredItems.containsKey(newIdentifierAttempt)) {
-					    newIdentifier = newIdentifierAttempt;
-				    }
-			    }
-			    Dimenager.LOGGER.warn("Generator type '" + identifier + "' has the same id as a dimension; calling the generator with the config of the dimension '" + newIdentifier + "' instead");
-			    identifier = newIdentifier;
-		    }
-		    ChunkGenerator chunkGenerator = serverLevel.getChunkSource().getGenerator();
-		    ResourceLocation typeIdentifier = getCodecOfGenerator(chunkGenerator);
-		    Codec<? extends ChunkGenerator> typeCodec = Registry.CHUNK_GENERATOR.get(typeIdentifier);
-		    /*for (ResourceLocation generatorTypeIdentifier : Registry.CHUNK_GENERATOR.keySet()) {
-			    Type class1 = ((ParameterizedType) Registry.CHUNK_GENERATOR.get(generatorTypeIdentifier).getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-			    Type class2 = chunkGenerator.getClass();
-			    if (chunkGenerator.getClass().getGenericSuperclass() == chunkGenerator.getClass()) {
-				    typeCodec = Registry.CHUNK_GENERATOR.get(generatorTypeIdentifier);
-				    typeIdentifier = generatorTypeIdentifier;
-			    }
-		    }*/
-		    if (typeCodec == null || typeIdentifier == null) {
-			    Dimenager.LOGGER.warn("Could not find the generator codec of the configured dimension '" + entry.getKey() + "'");
-			    continue;
-		    }
-		    ResourceLocation finalIdentifier = identifier;
-		    JsonObject settings = ((Codec<ChunkGenerator>) typeCodec)
-				    .encode(chunkGenerator, JsonOps.INSTANCE, new JsonObject())
-				    .getOrThrow(false, s -> Dimenager.LOGGER.error("Could not serialize reflection generator with id '" + finalIdentifier + "': " + s))
-				    .getAsJsonObject();
-		    configuredItems.put(identifier, new Generator(identifier, generatedDirectory, typeIdentifier, typeCodec, settings, chunkGenerator));
-	    }
-	    items.putAll(configuredItems);
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T extends ChunkGenerator> ResourceLocation getCodecOfGenerator(T generator) {
-	    for (ResourceLocation generatorTypeIdentifier : Registry.CHUNK_GENERATOR.keySet()) {
-	    	try {
-			    Codec<T> codec = (Codec<T>) Registry.CHUNK_GENERATOR.get(generatorTypeIdentifier);
-			    if (codec != null)
-			    	return generatorTypeIdentifier;
-		    } catch (ClassCastException ignored) {
-		    }
-	    }
-	    return null;
-    }
+	public void addDimensionMirrorGenerators(Map<ResourceKey<Level>, ServerLevel> levels) {
+		// The following code creates generators that reflect settings of generators in the configured dimensions.
+		for (Map.Entry<ResourceKey<Level>, ServerLevel> entry : levels.entrySet()) {
+			ServerLevel serverLevel = entry.getValue();
+			ResourceLocation identifier = entry.getKey().location();
+			// We want to add a generator with id of a configured dimension that will reflect settings of that dimension.
+			// There is a chance that there is a generator type that is called the same as a dimension though.
+			// E.g if there are a generator type and a dimension with the same id 'minecraft:noise', we will try to call
+			// the generator reflecting the dimension 'minecraft:noise0', `minecraft:noise1`, ... until we find a free id.
+			if (configuredItems.containsKey(identifier)) {
+				ResourceLocation newIdentifier = identifier;
+				int i = 0;
+				while (identifier.equals(newIdentifier)) {
+					ResourceLocation newIdentifierAttempt = new ResourceLocation(identifier.getNamespace(), identifier.getPath() + i++);
+					if (!configuredItems.containsKey(newIdentifierAttempt)) {
+						newIdentifier = newIdentifierAttempt;
+					}
+				}
+				Dimenager.LOGGER.warn("Generator type '" + identifier + "' has the same id as a dimension; calling the generator with the config of the dimension '" + newIdentifier + "' instead");
+				identifier = newIdentifier;
+			}
+			ChunkGenerator chunkGenerator = serverLevel.getChunkSource().getGenerator();
+			Codec<? extends ChunkGenerator> typeCodec = chunkGenerator.codec();
+			ResourceLocation typeIdentifier = Registry.CHUNK_GENERATOR.getKey(typeCodec);
+			if(typeIdentifier == null) {
+				Dimenager.LOGGER.warn("Could not find the generator type identifier of the configured dimension '" + entry.getKey() + "', skipping its generator type");
+				continue;
+			}
+			try {
+				configuredItems.put(identifier, new Generator(identifier, generatedDirectory, typeIdentifier, typeCodec, chunkGenerator));
+			} catch (RuntimeException exception) {
+				Dimenager.LOGGER.error("Failed to serialize reflection generator, skipping it");
+			}
+		}
+		items.putAll(configuredItems);
+	}
 
 	@Override
 	public void addGeneratedItem(Generator item) {
@@ -120,12 +99,21 @@ public class GeneratorRepository extends GeneratedRepository<Generator> {
 		}
 	}
 
-	public int createGenerator(CommandSourceStack source, ResourceLocation identifier, ResourceLocation generatorIdentifier, Codec<? extends ChunkGenerator> generatorCodec) {
+	public int createGenerator(CommandSourceStack source, ResourceLocation identifier, ResourceLocation typeIdentifier, Codec<? extends ChunkGenerator> generatorCodec) {
+		return createGenerator(source, identifier, typeIdentifier, generatorCodec, source.getServer().getWorldData().worldGenSettings().seed());
+	}
+
+	public int createGenerator(CommandSourceStack source, ResourceLocation identifier, ResourceLocation typeIdentifier, Codec<? extends ChunkGenerator> generatorCodec, long seed) {
 		if (items.containsKey(identifier)) {
 			source.sendFailure(new TextComponent("A generator with id '" + identifier + "' already exists"));
 			return 0;
 		}
-		addGeneratedItem(new Generator(identifier, generatedDirectory, generatorIdentifier, generatorCodec, null));
+		JsonObject typeDefaults = defaultGeneratorTypeLoader.getDefaults().get(typeIdentifier);
+		if (typeDefaults == null) {
+			source.sendFailure(new TextComponent("Missing default settings for generator type with id '" + typeIdentifier + "'"));
+			return 0;
+		}
+		addGeneratedItem(new Generator(identifier, generatedDirectory, typeIdentifier, generatorCodec, typeDefaults, seed));
 		source.sendSuccess(new TextComponent("Created a new generator with id '" + identifier + "'"), false);
 		return 1;
 	}
@@ -145,6 +133,11 @@ public class GeneratorRepository extends GeneratedRepository<Generator> {
 		generatedItems.remove(generator.getIdentifier());
 		generator.removeFile();
 		source.sendSuccess(new TextComponent("Removed the generator with id '" + generator.getIdentifier() + "'"), false);
+		return 1;
+	}
+
+	public int printData(CommandSourceStack source, Generator generator) {
+		source.sendSuccess(new TextComponent("Generator " + generator.getIdentifier() + " has the following data: " + generator.getSettings().toString()), false);
 		return 1;
 	}
 

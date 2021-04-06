@@ -1,12 +1,15 @@
 package com.beetmacol.mc.dimenager.mixin;
 
+import com.beetmacol.mc.dimenager.Dimenager;
 import com.beetmacol.mc.dimenager.dimensions.DimensionRepository;
 import com.beetmacol.mc.dimenager.dimensiontypes.DimensionTypeRepository;
 import com.beetmacol.mc.dimenager.generators.GeneratorRepository;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.RegistryReadOps;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerResources;
 import net.minecraft.server.level.progress.ChunkProgressListener;
@@ -35,9 +38,11 @@ public class MinecraftServerMixin {
 			at = @At("TAIL")
 	)
 	private void onServerInit(Thread thread, RegistryAccess.RegistryHolder registryHolder, LevelStorageSource.LevelStorageAccess levelStorageAccess, WorldData worldData, PackRepository packRepository, Proxy proxy, DataFixer dataFixer, ServerResources serverResources, MinecraftSessionService minecraftSessionService, GameProfileRepository gameProfileRepository, GameProfileCache gameProfileCache, ChunkProgressListenerFactory chunkProgressListenerFactory, CallbackInfo ci) {
+		Dimenager.registryReadOps = RegistryReadOps.create(JsonOps.INSTANCE, resources.getResourceManager(), registryHolder);
 		dimensionRepository = new DimensionRepository(serverResources.getResourceManager(), levelStorageAccess, ((MinecraftServerAccessor) this).getLevels(), registryHolder.dimensionTypes());
 		dimensionTypeRepository = new DimensionTypeRepository(resources.getResourceManager(), levelStorageAccess, registryHolder.dimensionTypes());
 		generatorRepository = new GeneratorRepository(levelStorageAccess, registryHolder);
+		generatorRepository.reload();
 		dimensionTypeRepository.reload();
 	}
 

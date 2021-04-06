@@ -44,13 +44,13 @@ public abstract class GeneratedRepository<T extends GeneratedItem> {
 				File itemDirectory = new File(namespaceDirectory, itemGeneralName);
 				if (itemDirectory.isDirectory()) {
 					for (File file : itemDirectory.listFiles(File::isFile)) {
+						ResourceLocation identifier = new ResourceLocation(namespaceDirectory.getName(), FilenameUtils.removeExtension(file.getName()));
 						try {
 							JsonReader jsonReader = new JsonReader(new FileReader(file));
 							JsonObject json = new JsonParser().parse(jsonReader).getAsJsonObject();
-							ResourceLocation identifier = new ResourceLocation(namespaceDirectory.getName(), FilenameUtils.removeExtension(file.getName()));
 							addGeneratedItem(fromJson(identifier, json));
 						} catch (IllegalStateException | JsonSyntaxException exception) {
-							Dimenager.LOGGER.error("Could not read json from file " + file.getPath(), exception);
+							Dimenager.LOGGER.error("Could not read JSON data of a " + itemGeneralName + " with id '" + identifier + "'", exception);
 						} catch (FileNotFoundException exception) {
 							throw new IllegalStateException();
 						}

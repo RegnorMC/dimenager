@@ -1,6 +1,6 @@
 # Dimenager
 Dimenager is a [Fabric](https://fabricmc.net/) server-side mod that lets you easily manage Minecraft dimensions in-game using simple commands.  
-The mod **does not depend** on any other mods including the [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api).  
+The mod depends on the [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api), but because it only uses a single FAPI module, I decided to include it in the mods jar. This means you don't need Fabric API or any other libraries installed.  
 ## Contributing
 Contributions to the mod are welcome, but the source code is currently unfriendly for coders. Some classes use strange names that may be confusing for you and I recommend reading the entire README file for better understanding.  
 Also, the mod uses official Minecraft mappings.  
@@ -44,10 +44,12 @@ This command splits into three sub commands: `/dimension worlds`, `/dimension ty
 │   └──	set <property> <value>                 Changes a property of a dimension type
 └── generators
     ├──	add <identifier>
-    │   ├── new <type>                             Creates a generator of given gnerator type
+    │   ├── new <type>                         Creates a generator of given generator type
+    │   │   └── <seed>                         Creates a generator of given generator type with a given seed
     │   └── copy <other>                       Creates a new generator from another one
     ├──	remove <generator>                     Removes a generator
-    ├──	data // TODO
+    ├──	data
+    │	└── get <generator>                    Prints the JSON data of the generator
     ├──	list                                   Lists available generators
     └──	types                                  Lists available generator types
 ```

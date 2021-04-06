@@ -4,6 +4,7 @@ import com.beetmacol.mc.dimenager.dimensions.GeneratedDimension;
 import com.beetmacol.mc.dimenager.dimensiontypes.GeneratedDimensionType;
 import com.beetmacol.mc.dimenager.generators.Generator;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -87,6 +88,9 @@ public class DimensionCommand {
 												.then(Commands.argument("type", ResourceLocationArgument.id())
 														.suggests(DimensionCommand::generatorTypeSuggestions)
 														.executes(context -> generatorRepository.createGenerator(context.getSource(), ResourceLocationArgument.getId(context, "identifier"), ResourceLocationArgument.getId(context, "type"), getGeneratorCodec(context, "type")))
+														.then(Commands.argument("seed", LongArgumentType.longArg())
+																.executes(context -> generatorRepository.createGenerator(context.getSource(), ResourceLocationArgument.getId(context, "identifier"), ResourceLocationArgument.getId(context, "type"), getGeneratorCodec(context, "type"), LongArgumentType.getLong(context, "seed")))
+														)
 												)
 										)
 										.then(Commands.literal("copy")
@@ -104,7 +108,22 @@ public class DimensionCommand {
 								)
 						)
 						.then(Commands.literal("data")
-								// TODO `/dimension generators data`. Here and in README.md.
+								.then(Commands.literal("get")
+										.then(Commands.argument("generator", ResourceLocationArgument.id())
+												.suggests(DimensionCommand::generatorSuggestions)
+												.executes(context -> generatorRepository.printData(context.getSource(), getGenerator(context, "generator")))
+										)
+								)
+								.then(Commands.literal("modify")
+										.executes(context -> {
+											context.getSource().sendFailure(
+													new TextComponent("Dimenager doesn't handle generator " +
+															"editing yet; please edith the generator file manually " +
+															"and reload the resources")
+											);
+											return 0;
+										})
+								)
 						)
 						.then(Commands.literal("list")
 								.executes(context -> generatorRepository.listGenerators(context.getSource()))

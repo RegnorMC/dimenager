@@ -1,0 +1,9 @@
+{
+  "seed": 0,
+  "settings": "minecraft:overworld",
+  "biome_source": {
+    "type": "minecraft:vanilla_layered",
+    "seed": 0,
+    "large_biomes": false
+  }
+}

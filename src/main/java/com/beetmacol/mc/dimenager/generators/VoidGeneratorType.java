@@ -31,7 +31,7 @@ public class VoidGeneratorType extends ChunkGenerator {
 	private final Registry<Biome> biomes;
 
 	public VoidGeneratorType(Registry<Biome> registry) {
-		super(new FixedBiomeSource(registry.getOrThrow(Biomes.THE_VOID)), new StructureSettings(false));
+		super(new FixedBiomeSource(registry.getOrThrow(Biomes.OCEAN)), new StructureSettings(false));
 		this.biomes = registry;
 	}
 
@@ -40,7 +40,7 @@ public class VoidGeneratorType extends ChunkGenerator {
 	}
 
 	@Override
-	protected Codec<? extends ChunkGenerator> codec() {
+	public Codec<? extends ChunkGenerator> codec() {
 		return CODEC;
 	}
 
