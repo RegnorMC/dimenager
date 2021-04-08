@@ -1,18 +1,17 @@
 package com.beetmacol.mc.dimenager;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.world.level.storage.LevelStorageSource;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.Identifier;
+import net.minecraft.world.level.storage.LevelStorage;
 
 public abstract class GeneratedAndConfiguredRepository<T extends GeneratedItem, U> extends GeneratedRepository<T> {
-	protected final Map<ResourceLocation, U> items = new HashMap<>();
+	protected final Map<Identifier, U> items = new HashMap<>();
 	protected ResourceManager resourceManager;
 
-	protected GeneratedAndConfiguredRepository(ResourceManager resourceManager, LevelStorageSource.LevelStorageAccess levelStorageAccess, String itemGeneralName) {
+	protected GeneratedAndConfiguredRepository(ResourceManager resourceManager, LevelStorage.Session levelStorageAccess, String itemGeneralName) {
 		super(levelStorageAccess, itemGeneralName);
 		this.resourceManager = resourceManager;
 	}
@@ -43,19 +42,19 @@ public abstract class GeneratedAndConfiguredRepository<T extends GeneratedItem, 
 	protected abstract void addConfiguredItems();
 
 	@Override
-	public boolean contains(ResourceLocation identifier) {
+	public boolean contains(Identifier identifier) {
 		return items.containsKey(identifier);
 	}
 
-	public boolean containsGenerated(ResourceLocation identifier) {
+	public boolean containsGenerated(Identifier identifier) {
 		return super.contains(identifier);
 	}
 
-	public U get(ResourceLocation identifier) {
+	public U get(Identifier identifier) {
 		return items.get(identifier);
 	}
 
-	public Collection<ResourceLocation> getIdentifiers() {
+	public Collection<Identifier> getIdentifiers() {
 		return items.keySet();
 	}
 }

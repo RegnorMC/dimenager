@@ -6,28 +6,28 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
+import net.minecraft.util.Identifier;
+import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 public class Generator extends GeneratedItem {
-	ResourceLocation typeIdentifier;
+	Identifier typeIdentifier;
 	private final Codec<? extends ChunkGenerator> typeCodec;
 	private ChunkGenerator chunkGenerator;
 	private JsonObject settings;
 
-	protected Generator(ResourceLocation identifier, Path generatedDirectory, ResourceLocation typeIdentifier, Codec<? extends ChunkGenerator> typeCodec, @Nullable JsonObject settings) {
+	protected Generator(Identifier identifier, Path generatedDirectory, Identifier typeIdentifier, Codec<? extends ChunkGenerator> typeCodec, @Nullable JsonObject settings) {
 		this(identifier, generatedDirectory, typeIdentifier, typeCodec, createChunkGeneratorFromSettings(identifier, typeCodec, settings));
 	}
 
-	protected Generator(ResourceLocation identifier, Path generatedDirectory, ResourceLocation typeIdentifier, Codec<? extends ChunkGenerator> typeCodec, @Nullable JsonObject settings, long seed) {
+	protected Generator(Identifier identifier, Path generatedDirectory, Identifier typeIdentifier, Codec<? extends ChunkGenerator> typeCodec, @Nullable JsonObject settings, long seed) {
 		this(identifier, generatedDirectory, typeIdentifier, typeCodec, createChunkGeneratorFromSettings(identifier, typeCodec, settings).withSeed(seed));
 	}
 
 	@SuppressWarnings("unchecked")
-	protected Generator(ResourceLocation identifier, Path generatedDirectory, ResourceLocation typeIdentifier, Codec<? extends ChunkGenerator> typeCodec, ChunkGenerator chunkGenerator) {
+	protected Generator(Identifier identifier, Path generatedDirectory, Identifier typeIdentifier, Codec<? extends ChunkGenerator> typeCodec, ChunkGenerator chunkGenerator) {
 		super(identifier, generatedDirectory, "generator");
 		this.typeIdentifier = typeIdentifier;
 		this.typeCodec = typeCodec;
@@ -38,13 +38,13 @@ public class Generator extends GeneratedItem {
 		this.chunkGenerator = chunkGenerator;
 	}
 
-	protected Generator deepCopy(ResourceLocation identifier, Path generatedDirectory) {
+	protected Generator deepCopy(Identifier identifier, Path generatedDirectory) {
 		Gson gson = new Gson();
 		return new Generator(identifier, generatedDirectory, getTypeIdentifier(), this.typeCodec, gson.fromJson(gson.toJson(settings, JsonObject.class), JsonObject.class));
 	}
 
 	@SuppressWarnings("unchecked")
-	private static ChunkGenerator createChunkGeneratorFromSettings(ResourceLocation identifier, Codec<? extends ChunkGenerator> codec, @Nullable JsonObject settings) {
+	private static ChunkGenerator createChunkGeneratorFromSettings(Identifier identifier, Codec<? extends ChunkGenerator> codec, @Nullable JsonObject settings) {
 		return ((Codec<ChunkGenerator>) codec)
 				.decode(Dimenager.registryReadOps, settings)
 				.getOrThrow(false, s -> Dimenager.LOGGER.error("Could not deserialize generator with id '" + identifier + "': " + s))
@@ -63,7 +63,7 @@ public class Generator extends GeneratedItem {
 		return chunkGenerator;
 	}
 
-	public ResourceLocation getTypeIdentifier() {
+	public Identifier getTypeIdentifier() {
 		return typeIdentifier;
 	}
 

@@ -1,12 +1,10 @@
 package com.beetmacol.mc.dimenager.mixin;
 
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
+import net.minecraft.world.level.storage.LevelStorage;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
@@ -16,11 +14,11 @@ import java.util.concurrent.Executor;
 @Mixin(MinecraftServer.class)
 public interface MinecraftServerAccessor {
 	@Accessor
-	LevelStorageSource.LevelStorageAccess getStorageSource();
+	LevelStorage.Session getSession();
 
 	@Accessor
-	Executor getExecutor();
+	Executor getWorkerExecutor();
 
 	@Accessor
-	Map<ResourceKey<Level>, ServerLevel> getLevels();
+	Map<RegistryKey<World>, ServerWorld> getWorlds();
 }

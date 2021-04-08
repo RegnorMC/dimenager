@@ -4,10 +4,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.world.level.storage.LevelResource;
-import net.minecraft.world.level.storage.LevelStorageSource;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
@@ -17,14 +13,18 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.WorldSavePath;
+import net.minecraft.world.level.storage.LevelStorage;
 
 public abstract class GeneratedRepository<T extends GeneratedItem> {
-	protected final Map<ResourceLocation, T> generatedItems = new HashMap<>();
+	protected final Map<Identifier, T> generatedItems = new HashMap<>();
 	protected final Path generatedDirectory;
 	private final String itemGeneralName;
 
-	protected GeneratedRepository(LevelStorageSource.LevelStorageAccess levelStorageAccess, String itemGeneralName) {
-		this.generatedDirectory = levelStorageAccess.getLevelPath(LevelResource.GENERATED_DIR).normalize();
+	protected GeneratedRepository(LevelStorage.Session levelStorageAccess, String itemGeneralName) {
+		this.generatedDirectory = levelStorageAccess.getDirectory(WorldSavePath.GENERATED).normalize();
 		this.itemGeneralName = itemGeneralName;
 	}
 
@@ -44,7 +44,7 @@ public abstract class GeneratedRepository<T extends GeneratedItem> {
 				File itemDirectory = new File(namespaceDirectory, itemGeneralName);
 				if (itemDirectory.isDirectory()) {
 					for (File file : itemDirectory.listFiles(File::isFile)) {
-						ResourceLocation identifier = new ResourceLocation(namespaceDirectory.getName(), FilenameUtils.removeExtension(file.getName()));
+						Identifier identifier = new Identifier(namespaceDirectory.getName(), FilenameUtils.removeExtension(file.getName()));
 						try {
 							JsonReader jsonReader = new JsonReader(new FileReader(file));
 							JsonObject json = new JsonParser().parse(jsonReader).getAsJsonObject();
@@ -60,22 +60,22 @@ public abstract class GeneratedRepository<T extends GeneratedItem> {
 		}
 	}
 
-	protected abstract T fromJson(ResourceLocation identifier, JsonObject json) throws JsonSyntaxException;
+	protected abstract T fromJson(Identifier identifier, JsonObject json) throws JsonSyntaxException;
 
 	protected void addLoadedItem(T item) {
 		addGeneratedItem(item);
 	}
 
-	public T getGenerated(ResourceLocation identifier) {
+	public T getGenerated(Identifier identifier) {
 		return generatedItems.get(identifier);
 	}
 
-	public Collection<ResourceLocation> getGeneratedIdentifiers() {
+	public Collection<Identifier> getGeneratedIdentifiers() {
 		return generatedItems.keySet();
 	}
 
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
-	public boolean contains(ResourceLocation identifier) {
+	public boolean contains(Identifier identifier) {
 		return generatedItems.containsKey(identifier);
 	}
 }

@@ -3,18 +3,17 @@ package com.beetmacol.mc.dimenager.dimensions;
 import com.beetmacol.mc.dimenager.GeneratedItem;
 import com.beetmacol.mc.dimenager.generators.Generator;
 import com.google.gson.JsonObject;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.dimension.DimensionType;
-
 import java.nio.file.Path;
+import net.minecraft.util.Identifier;
+import net.minecraft.world.dimension.DimensionType;
 
 public class GeneratedDimension extends GeneratedItem {
 	private DimensionType type;
-	private ResourceLocation typeIdentifier;
+	private Identifier typeIdentifier;
 	private Generator generator; // Temporarily an identifier. Will be a Generator as soon as I create the Generator class.
 	private boolean enabled;
 
-	public GeneratedDimension(ResourceLocation identifier, Path generatedDirectory, boolean enabled, DimensionType type, ResourceLocation typeIdentifier, Generator generator) {
+	public GeneratedDimension(Identifier identifier, Path generatedDirectory, boolean enabled, DimensionType type, Identifier typeIdentifier, Generator generator) {
 		super(identifier, generatedDirectory, "dimension");
 		this.enabled = enabled;
 		this.type = type;
@@ -35,7 +34,7 @@ public class GeneratedDimension extends GeneratedItem {
 		return type;
 	}
 
-	public ResourceLocation getTypeIdentifier() {
+	public Identifier getTypeIdentifier() {
 		return typeIdentifier;
 	}
 
@@ -47,7 +46,7 @@ public class GeneratedDimension extends GeneratedItem {
 		return enabled;
 	}
 
-	public void setType(DimensionType type, ResourceLocation typeIdentifier) {
+	public void setType(DimensionType type, Identifier typeIdentifier) {
 		this.type = type;
 		this.typeIdentifier = typeIdentifier;
 		saveToFile();

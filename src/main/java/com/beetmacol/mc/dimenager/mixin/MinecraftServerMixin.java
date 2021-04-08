@@ -1,6 +1,5 @@
 package com.beetmacol.mc.dimenager.mixin;
 
-import com.beetmacol.mc.dimenager.Dimenager;
 import com.beetmacol.mc.dimenager.dimensions.DimensionRepository;
 import com.beetmacol.mc.dimenager.dimensiontypes.DimensionTypeRepository;
 import com.beetmacol.mc.dimenager.generators.GeneratorRepository;
@@ -8,18 +7,17 @@ import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.RegistryReadOps;
+import net.minecraft.resource.ResourcePackManager;
+import net.minecraft.resource.ServerResourceManager;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.ServerResources;
-import net.minecraft.server.level.progress.ChunkProgressListener;
-import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
-import net.minecraft.server.packs.repository.PackRepository;
-import net.minecraft.server.players.GameProfileCache;
-import net.minecraft.world.level.storage.LevelStorageSource;
-import net.minecraft.world.level.storage.WorldData;
+import net.minecraft.server.WorldGenerationProgressListener;
+import net.minecraft.server.WorldGenerationProgressListenerFactory;
+import net.minecraft.util.UserCache;
+import net.minecraft.util.dynamic.RegistryOps;
+import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.world.SaveProperties;
+import net.minecraft.world.level.storage.LevelStorage;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -31,38 +29,35 @@ import static com.beetmacol.mc.dimenager.Dimenager.*;
 
 @Mixin(MinecraftServer.class)
 public class MinecraftServerMixin {
-	@Shadow private ServerResources resources;
 
 	@Inject(
 			method = "<init>",
 			at = @At("TAIL")
 	)
-	private void onServerInit(Thread thread, RegistryAccess.RegistryHolder registryHolder, LevelStorageSource.LevelStorageAccess levelStorageAccess, WorldData worldData, PackRepository packRepository, Proxy proxy, DataFixer dataFixer, ServerResources serverResources, MinecraftSessionService minecraftSessionService, GameProfileRepository gameProfileRepository, GameProfileCache gameProfileCache, ChunkProgressListenerFactory chunkProgressListenerFactory, CallbackInfo ci) {
-		Dimenager.registryReadOps = RegistryReadOps.create(JsonOps.INSTANCE, resources.getResourceManager(), registryHolder);
-		dimensionRepository = new DimensionRepository(serverResources.getResourceManager(), levelStorageAccess, ((MinecraftServerAccessor) this).getLevels());
-		dimensionTypeRepository = new DimensionTypeRepository(resources.getResourceManager(), levelStorageAccess, registryHolder.dimensionTypes());
+	private void onServerInit(Thread thread, DynamicRegistryManager.Impl registryHolder, LevelStorage.Session levelStorageAccess, SaveProperties worldData, ResourcePackManager packRepository, Proxy proxy, DataFixer dataFixer, ServerResourceManager serverResources, MinecraftSessionService minecraftSessionService, GameProfileRepository gameProfileRepository, UserCache gameProfileCache, WorldGenerationProgressListenerFactory chunkProgressListenerFactory, CallbackInfo ci) {
+		registryReadOps = RegistryOps.of(JsonOps.INSTANCE, serverResources.getResourceManager(), registryHolder);
+		dimensionRepository = new DimensionRepository(serverResources.getResourceManager(), levelStorageAccess, ((MinecraftServerAccessor) this).getWorlds());
+		dimensionTypeRepository = new DimensionTypeRepository(serverResources.getResourceManager(), levelStorageAccess, registryHolder.getDimensionTypes());
 		generatorRepository = new GeneratorRepository(levelStorageAccess, registryHolder);
 		generatorRepository.reload();
 		dimensionTypeRepository.reload();
 	}
 
 	@Inject(
-			method = "createLevels",
+			method = "createWorlds",
 			at = @At("TAIL")
 	)
-	private void onLevelsLoad(ChunkProgressListener chunkProgressListener, CallbackInfo ci) {
-		generatorRepository.addDimensionMirrorGenerators(((MinecraftServerAccessor) this).getLevels());
+	private void onLevelsLoad(WorldGenerationProgressListener chunkProgressListener, CallbackInfo ci) {
+		generatorRepository.addDimensionMirrorGenerators(((MinecraftServerAccessor) this).getWorlds());
 		dimensionRepository.reload();
 		dimensionRepository.createLevels(chunkProgressListener, (MinecraftServer) (Object) this);
 	}
 
-	// MC Dev plugin doesn't recognise lambdas
-	@SuppressWarnings("UnresolvedMixinReference")
 	@Inject(
-			method = "lambda$reloadResources$10",
+			method = "method_29440",
 			at = @At("TAIL")
 	)
-	private void onResourcesReload(Collection<String> collection, ServerResources resources, CallbackInfo ci) {
+	private void onResourcesReload(Collection<String> collection, ServerResourceManager resources, CallbackInfo ci) {
 		dimensionRepository.resourceManagerReload(resources.getResourceManager());
 		dimensionTypeRepository.resourceManagerReload(resources.getResourceManager());
 		generatorRepository.resourceManagerReload(resources.getResourceManager());

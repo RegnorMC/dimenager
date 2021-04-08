@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
-import net.minecraft.util.GsonHelper;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -13,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
+import net.minecraft.util.JsonHelper;
 
 public class DimenagerConfiguration {
 	private final boolean modifyTpCommand;
@@ -25,8 +25,8 @@ public class DimenagerConfiguration {
 
 	public static DimenagerConfiguration fromJson(JsonObject jsonObject) throws JsonSyntaxException {
 		return new DimenagerConfiguration(
-				GsonHelper.getAsBoolean(jsonObject, "modify_tp_command", true),
-				GsonHelper.getAsBoolean(jsonObject, "remove_command_ambiguity_warns", false)
+				JsonHelper.getBoolean(jsonObject, "modify_tp_command", true),
+				JsonHelper.getBoolean(jsonObject, "remove_command_ambiguity_warns", false)
 		);
 	}
 

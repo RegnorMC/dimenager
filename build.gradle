@@ -16,7 +16,7 @@ Set<String> apiModules = [
 
 dependencies {
     minecraft 'com.mojang:minecraft:1.16.5'
-    mappings minecraft.officialMojangMappings()
+    mappings "net.fabricmc:yarn:1.16.5+build.6:v2"
     modImplementation "net.fabricmc:fabric-loader:0.11.3"
 
     apiModules.forEach {

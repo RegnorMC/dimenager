@@ -1,37 +1,36 @@
 package com.beetmacol.mc.dimenager.generators;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.RegistryLookupCodec;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.WorldGenRegion;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.NoiseColumn;
-import net.minecraft.world.level.StructureFeatureManager;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeManager;
-import net.minecraft.world.level.biome.Biomes;
-import net.minecraft.world.level.biome.FixedBiomeSource;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.StructureSettings;
-
 import java.util.HashMap;
 import java.util.Optional;
+import net.minecraft.block.BlockState;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryLookupCodec;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.ChunkRegion;
+import net.minecraft.world.Heightmap;
+import net.minecraft.world.WorldAccess;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeKeys;
+import net.minecraft.world.biome.source.BiomeAccess;
+import net.minecraft.world.biome.source.FixedBiomeSource;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.gen.GenerationStep;
+import net.minecraft.world.gen.StructureAccessor;
+import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.gen.chunk.StructuresConfig;
+import net.minecraft.world.gen.chunk.VerticalBlockSample;
 
 import static com.beetmacol.mc.dimenager.Dimenager.MOD_ID;
 
 public class VoidGeneratorType extends ChunkGenerator {
-	public static final Codec<VoidGeneratorType> CODEC = RegistryLookupCodec.create(Registry.BIOME_REGISTRY).xmap(VoidGeneratorType::new, VoidGeneratorType::biomes).stable().codec();
-	public static final ResourceLocation IDENTIFIER = new ResourceLocation(MOD_ID, "void");
+	public static final Codec<VoidGeneratorType> CODEC = RegistryLookupCodec.of(Registry.BIOME_KEY).xmap(VoidGeneratorType::new, VoidGeneratorType::biomes).stable().codec();
+	public static final Identifier IDENTIFIER = new Identifier(MOD_ID, "void");
 	private final Registry<Biome> biomes;
 
 	public VoidGeneratorType(Registry<Biome> registry) {
-		super(new FixedBiomeSource(registry.getOrThrow(Biomes.OCEAN)), new StructureSettings(false));
+		super(new FixedBiomeSource(registry.getOrThrow(BiomeKeys.OCEAN)), new StructuresConfig(false));
 		this.biomes = registry;
 	}
 
@@ -40,7 +39,7 @@ public class VoidGeneratorType extends ChunkGenerator {
 	}
 
 	@Override
-	public Codec<? extends ChunkGenerator> codec() {
+	public Codec<? extends ChunkGenerator> getCodec() {
 		return CODEC;
 	}
 
@@ -50,29 +49,29 @@ public class VoidGeneratorType extends ChunkGenerator {
 	}
 
 	@Override
-	public void buildSurfaceAndBedrock(WorldGenRegion worldGenRegion, ChunkAccess chunkAccess) {
+	public void buildSurface(ChunkRegion worldGenRegion, Chunk chunkAccess) {
 	}
 
 	@Override
-	public void fillFromNoise(LevelAccessor levelAccessor, StructureFeatureManager structureFeatureManager, ChunkAccess chunkAccess) {
+	public void populateNoise(WorldAccess levelAccessor, StructureAccessor structureFeatureManager, Chunk chunkAccess) {
 	}
 
 	@Override
-	public int getBaseHeight(int i, int j, Heightmap.Types types) {
+	public int getHeight(int i, int j, Heightmap.Type types) {
 		return 0;
 	}
 
 	@Override
-	public BlockGetter getBaseColumn(int i, int j) {
-		return new NoiseColumn(new BlockState[0]);
+	public BlockView getColumnSample(int i, int j) {
+		return new VerticalBlockSample(new BlockState[0]);
 	}
 
 	@Override
-	public StructureSettings getSettings() {
-		return new StructureSettings(Optional.empty(), new HashMap<>());
+	public StructuresConfig getStructuresConfig() {
+		return new StructuresConfig(Optional.empty(), new HashMap<>());
 	}
 
 	@Override
-	public void applyCarvers(long l, BiomeManager biomeManager, ChunkAccess chunkAccess, GenerationStep.Carving carving) {
+	public void carve(long l, BiomeAccess biomeManager, Chunk chunkAccess, GenerationStep.Carver carving) {
 	}
 }

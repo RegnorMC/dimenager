@@ -1,18 +1,17 @@
 package com.beetmacol.mc.dimenager;
 
 import com.google.gson.JsonObject;
-import net.minecraft.resources.ResourceLocation;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
+import net.minecraft.util.Identifier;
 
 public abstract class GeneratedItem {
-	private final ResourceLocation identifier;
+	private final Identifier identifier;
 	private final File file;
 
-	protected GeneratedItem(ResourceLocation identifier, Path generatedDirectory, String generalName) {
+	protected GeneratedItem(Identifier identifier, Path generatedDirectory, String generalName) {
 		this.identifier = identifier;
 		this.file = new File(generatedDirectory.toFile(), this.identifier.getNamespace() + File.separator + generalName + File.separator + this.identifier.getPath() + ".json");
 	}
@@ -36,7 +35,7 @@ public abstract class GeneratedItem {
 		file.delete();
 	}
 
-	public ResourceLocation getIdentifier() {
+	public Identifier getIdentifier() {
 		return identifier;
 	}
 

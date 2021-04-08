@@ -8,9 +8,9 @@ import com.beetmacol.mc.dimenager.generators.GeneratorRepository;
 import com.beetmacol.mc.dimenager.generators.VoidGeneratorType;
 import com.google.gson.JsonElement;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.RegistryReadOps;
-import net.minecraft.server.packs.PackType;
+import net.minecraft.resource.ResourceType;
+import net.minecraft.util.dynamic.RegistryOps;
+import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,13 +25,13 @@ public class Dimenager {
 	public static GeneratorRepository generatorRepository;
 
 	public static DefaultGeneratorTypeLoader defaultGeneratorTypeLoader;
-	public static RegistryReadOps<JsonElement> registryReadOps;
+	public static RegistryOps<JsonElement> registryReadOps;
 
 	public static void init() {
 		dimenagerConfiguration = DimenagerConfiguration.readConfiguration();
 		Registry.register(Registry.CHUNK_GENERATOR, VoidGeneratorType.IDENTIFIER, VoidGeneratorType.CODEC);
 
 		defaultGeneratorTypeLoader = new DefaultGeneratorTypeLoader();
-		ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(defaultGeneratorTypeLoader);
+		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(defaultGeneratorTypeLoader);
 	}
 }

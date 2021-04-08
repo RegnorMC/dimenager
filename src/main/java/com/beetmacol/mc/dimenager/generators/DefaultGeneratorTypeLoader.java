@@ -5,33 +5,32 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.util.profiling.ProfilerFiller;
-
+import net.minecraft.resource.JsonDataLoader;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.profiler.Profiler;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DefaultGeneratorTypeLoader extends SimpleJsonResourceReloadListener implements IdentifiableResourceReloadListener {
-	private final Map<ResourceLocation, JsonObject> defaults = new HashMap<>();
+public class DefaultGeneratorTypeLoader extends JsonDataLoader implements IdentifiableResourceReloadListener {
+	private final Map<Identifier, JsonObject> defaults = new HashMap<>();
 
 	public DefaultGeneratorTypeLoader() {
 		super(new Gson(), "dimenager_gen_type_defaults");
 	}
 
 	@Override
-	protected void apply(Map<ResourceLocation, JsonElement> loader, ResourceManager resourceManager, ProfilerFiller profilerFiller) {
+	protected void apply(Map<Identifier, JsonElement> loader, ResourceManager resourceManager, Profiler profilerFiller) {
 		defaults.clear();
 		loader.forEach((identifier, json) -> defaults.put(identifier, json.getAsJsonObject()));
 	}
 
-	public Map<ResourceLocation, JsonObject> getDefaults() {
+	public Map<Identifier, JsonObject> getDefaults() {
 		return defaults;
 	}
 
 	@Override
-	public ResourceLocation getFabricId() {
-		return new ResourceLocation(Dimenager.MOD_ID, "dimenager_gen_type_defaults");
+	public Identifier getFabricId() {
+		return new Identifier(Dimenager.MOD_ID, "dimenager_gen_type_defaults");
 	}
 }

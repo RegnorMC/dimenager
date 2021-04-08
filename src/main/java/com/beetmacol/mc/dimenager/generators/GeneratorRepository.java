@@ -5,18 +5,18 @@ import com.beetmacol.mc.dimenager.GeneratedRepository;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.serialization.Codec;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Texts;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.JsonHelper;
+import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
+import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.level.storage.LevelStorage;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,35 +25,35 @@ import java.util.Map;
 import static com.beetmacol.mc.dimenager.Dimenager.defaultGeneratorTypeLoader;
 
 public class GeneratorRepository extends GeneratedRepository<Generator> {
-	public static final ResourceLocation VOID = new ResourceLocation(Dimenager.MOD_ID, "void");
+	public static final Identifier VOID = new Identifier(Dimenager.MOD_ID, "void");
 
-	private final Map<ResourceLocation, Codec<? extends ChunkGenerator>> generatorTypes = new HashMap<>();
-	private final Map<ResourceLocation, Generator> configuredItems = new HashMap<>();
-	private final Map<ResourceLocation, Generator> items = new HashMap<>();
+	private final Map<Identifier, Codec<? extends ChunkGenerator>> generatorTypes = new HashMap<>();
+	private final Map<Identifier, Generator> configuredItems = new HashMap<>();
+	private final Map<Identifier, Generator> items = new HashMap<>();
 
-	public GeneratorRepository(LevelStorageSource.LevelStorageAccess levelStorageAccess, RegistryAccess.RegistryHolder registryHolder) {
+	public GeneratorRepository(LevelStorage.Session levelStorageAccess, DynamicRegistryManager.Impl registryHolder) {
 		super(levelStorageAccess, "generator");
-		for (ResourceLocation generatorTypeIdentifier : Registry.CHUNK_GENERATOR.keySet()) {
+		for (Identifier generatorTypeIdentifier : Registry.CHUNK_GENERATOR.getIds()) {
 			Codec<? extends ChunkGenerator> codec = Registry.CHUNK_GENERATOR.get(generatorTypeIdentifier);
 			generatorTypes.put(generatorTypeIdentifier, codec);
 		}
-		configuredItems.put(VOID, new Generator(VOID, generatedDirectory, VoidGeneratorType.IDENTIFIER, VoidGeneratorType.CODEC, new VoidGeneratorType(registryHolder.registryOrThrow(Registry.BIOME_REGISTRY))));
+		configuredItems.put(VOID, new Generator(VOID, generatedDirectory, VoidGeneratorType.IDENTIFIER, VoidGeneratorType.CODEC, new VoidGeneratorType(registryHolder.get(Registry.BIOME_KEY))));
 	}
 
-	public void addDimensionMirrorGenerators(Map<ResourceKey<Level>, ServerLevel> levels) {
+	public void addDimensionMirrorGenerators(Map<RegistryKey<World>, ServerWorld> levels) {
 		// The following code creates generators that reflect settings of generators in the configured dimensions.
-		for (Map.Entry<ResourceKey<Level>, ServerLevel> entry : levels.entrySet()) {
-			ServerLevel serverLevel = entry.getValue();
-			ResourceLocation identifier = entry.getKey().location();
+		for (Map.Entry<RegistryKey<World>, ServerWorld> entry : levels.entrySet()) {
+			ServerWorld serverLevel = entry.getValue();
+			Identifier identifier = entry.getKey().getValue();
 			// We want to add a generator with id of a configured dimension that will reflect settings of that dimension.
 			// There is a chance that there is a generator type that is called the same as a dimension though.
 			// E.g if there are a generator type and a dimension with the same id 'minecraft:noise', we will try to call
 			// the generator reflecting the dimension 'minecraft:noise0', `minecraft:noise1`, ... until we find a free id.
 			if (configuredItems.containsKey(identifier)) {
-				ResourceLocation newIdentifier = identifier;
+				Identifier newIdentifier = identifier;
 				int i = 0;
 				while (identifier.equals(newIdentifier)) {
-					ResourceLocation newIdentifierAttempt = new ResourceLocation(identifier.getNamespace(), identifier.getPath() + i++);
+					Identifier newIdentifierAttempt = new Identifier(identifier.getNamespace(), identifier.getPath() + i++);
 					if (!configuredItems.containsKey(newIdentifierAttempt)) {
 						newIdentifier = newIdentifierAttempt;
 					}
@@ -61,9 +61,9 @@ public class GeneratorRepository extends GeneratedRepository<Generator> {
 				Dimenager.LOGGER.warn("Generator type '" + identifier + "' has the same id as a dimension; calling the generator with the config of the dimension '" + newIdentifier + "' instead");
 				identifier = newIdentifier;
 			}
-			ChunkGenerator chunkGenerator = serverLevel.getChunkSource().getGenerator();
-			Codec<? extends ChunkGenerator> typeCodec = chunkGenerator.codec();
-			ResourceLocation typeIdentifier = Registry.CHUNK_GENERATOR.getKey(typeCodec);
+			ChunkGenerator chunkGenerator = serverLevel.getChunkManager().getChunkGenerator();
+			Codec<? extends ChunkGenerator> typeCodec = chunkGenerator.getCodec();
+			Identifier typeIdentifier = Registry.CHUNK_GENERATOR.getId(typeCodec);
 			if(typeIdentifier == null) {
 				Dimenager.LOGGER.warn("Could not find the generator type identifier of the configured dimension '" + entry.getKey() + "', skipping its generator type");
 				continue;
@@ -90,103 +90,103 @@ public class GeneratorRepository extends GeneratedRepository<Generator> {
 	}
 
 	@Override
-	protected Generator fromJson(ResourceLocation identifier, JsonObject json) throws JsonSyntaxException {
-		ResourceLocation typeIdentifier = new ResourceLocation(GsonHelper.getAsString(json, "type"));
+	protected Generator fromJson(Identifier identifier, JsonObject json) throws JsonSyntaxException {
+		Identifier typeIdentifier = new Identifier(JsonHelper.getString(json, "type"));
 		try {
-			return new Generator(identifier, generatedDirectory, typeIdentifier, generatorTypes.get(typeIdentifier), GsonHelper.getAsJsonObject(json, "settings", null));
+			return new Generator(identifier, generatedDirectory, typeIdentifier, generatorTypes.get(typeIdentifier), JsonHelper.getObject(json, "settings", null));
 		} catch (RuntimeException exception) {
 			throw new JsonSyntaxException(exception);
 		}
 	}
 
-	public int createGenerator(CommandSourceStack source, ResourceLocation identifier, ResourceLocation typeIdentifier, Codec<? extends ChunkGenerator> generatorCodec) {
-		return createGenerator(source, identifier, typeIdentifier, generatorCodec, source.getServer().getWorldData().worldGenSettings().seed());
+	public int createGenerator(ServerCommandSource source, Identifier identifier, Identifier typeIdentifier, Codec<? extends ChunkGenerator> generatorCodec) {
+		return createGenerator(source, identifier, typeIdentifier, generatorCodec, source.getMinecraftServer().getSaveProperties().getGeneratorOptions().getSeed());
 	}
 
-	public int createGenerator(CommandSourceStack source, ResourceLocation identifier, ResourceLocation typeIdentifier, Codec<? extends ChunkGenerator> generatorCodec, long seed) {
+	public int createGenerator(ServerCommandSource source, Identifier identifier, Identifier typeIdentifier, Codec<? extends ChunkGenerator> generatorCodec, long seed) {
 		if (items.containsKey(identifier)) {
-			source.sendFailure(new TextComponent("A generator with id '" + identifier + "' already exists"));
+			source.sendError(new LiteralText("A generator with id '" + identifier + "' already exists"));
 			return 0;
 		}
 		JsonObject typeDefaults = defaultGeneratorTypeLoader.getDefaults().get(typeIdentifier);
 		if (typeDefaults == null) {
-			source.sendFailure(new TextComponent("Missing default settings for generator type with id '" + typeIdentifier + "'"));
+			source.sendError(new LiteralText("Missing default settings for generator type with id '" + typeIdentifier + "'"));
 			return 0;
 		}
 		addGeneratedItem(new Generator(identifier, generatedDirectory, typeIdentifier, generatorCodec, typeDefaults, seed));
-		source.sendSuccess(new TextComponent("Created a new generator with id '" + identifier + "'"), false);
+		source.sendFeedback(new LiteralText("Created a new generator with id '" + identifier + "'"), false);
 		return 1;
 	}
 
-	public int createGenerator(CommandSourceStack source, ResourceLocation identifier, Generator copied) {
+	public int createGenerator(ServerCommandSource source, Identifier identifier, Generator copied) {
 		if (items.containsKey(identifier)) {
-			source.sendFailure(new TextComponent("A generator with id '" + identifier + "' already exists"));
+			source.sendError(new LiteralText("A generator with id '" + identifier + "' already exists"));
 			return 0;
 		}
 		addGeneratedItem(copied.deepCopy(identifier, generatedDirectory));
-		source.sendSuccess(new TextComponent("Copied generator '" + copied.getIdentifier() + "' to a new one with id '" + identifier + "'"), false);
+		source.sendFeedback(new LiteralText("Copied generator '" + copied.getIdentifier() + "' to a new one with id '" + identifier + "'"), false);
 		return 1;
 	}
 
-	public int deleteGenerator(CommandSourceStack source, Generator generator) {
+	public int deleteGenerator(ServerCommandSource source, Generator generator) {
 		items.remove(generator.getIdentifier());
 		generatedItems.remove(generator.getIdentifier());
 		generator.removeFile();
-		source.sendSuccess(new TextComponent("Removed the generator with id '" + generator.getIdentifier() + "'"), false);
+		source.sendFeedback(new LiteralText("Removed the generator with id '" + generator.getIdentifier() + "'"), false);
 		return 1;
 	}
 
-	public int printData(CommandSourceStack source, Generator generator) {
-		source.sendSuccess(new TextComponent("Generator " + generator.getIdentifier() + " has the following data: " + generator.getSettings().toString()), false);
+	public int printData(ServerCommandSource source, Generator generator) {
+		source.sendFeedback(new LiteralText("Generator " + generator.getIdentifier() + " has the following data: " + generator.getSettings().toString()), false);
 		return 1;
 	}
 
-	public int listGenerators(CommandSourceStack source) {
+	public int listGenerators(ServerCommandSource source) {
 		if (items.isEmpty()) {
-			source.sendSuccess(new TextComponent("There are no generators"), false);
+			source.sendFeedback(new LiteralText("There are no generators"), false);
 		} else {
-			Collection<ResourceLocation> identifiers = items.keySet();
-			source.sendSuccess(new TextComponent("There are " + items.size() + " generators: ").append(ComponentUtils.formatList(identifiers, identifier -> new TextComponent(identifier.toString()))), false);
+			Collection<Identifier> identifiers = items.keySet();
+			source.sendFeedback(new LiteralText("There are " + items.size() + " generators: ").append(Texts.join(identifiers, identifier -> new LiteralText(identifier.toString()))), false);
 		}
 		return items.size();
 	}
 
-	public int listGeneratorTypes(CommandSourceStack source) {
+	public int listGeneratorTypes(ServerCommandSource source) {
 		if (generatorTypes.isEmpty()) {
-			source.sendSuccess(new TextComponent("There are no generator types"), false);
+			source.sendFeedback(new LiteralText("There are no generator types"), false);
 		} else {
-			Collection<ResourceLocation> identifiers = generatorTypes.keySet();
-			source.sendSuccess(new TextComponent("There are " + generatorTypes.size() + " generator types: ").append(ComponentUtils.formatList(identifiers, identifier -> new TextComponent(identifier.toString()))), false);
+			Collection<Identifier> identifiers = generatorTypes.keySet();
+			source.sendFeedback(new LiteralText("There are " + generatorTypes.size() + " generator types: ").append(Texts.join(identifiers, identifier -> new LiteralText(identifier.toString()))), false);
 		}
 		return generatorTypes.size();
 	}
 
-	public boolean containsGenerated(ResourceLocation identifier) {
+	public boolean containsGenerated(Identifier identifier) {
 		return generatedItems.containsKey(identifier);
 	}
 
 	@Override
-	public boolean contains(ResourceLocation identifier) {
+	public boolean contains(Identifier identifier) {
 		return items.containsKey(identifier);
 	}
 
-	public Generator get(ResourceLocation identifier) {
+	public Generator get(Identifier identifier) {
 		return items.get(identifier);
 	}
 
-	public boolean containsGeneratorType(ResourceLocation identifier) {
+	public boolean containsGeneratorType(Identifier identifier) {
 		return generatorTypes.containsKey(identifier);
 	}
 
-	public Codec<? extends ChunkGenerator> getGeneratorType(ResourceLocation identifier) {
+	public Codec<? extends ChunkGenerator> getGeneratorType(Identifier identifier) {
 		return generatorTypes.get(identifier);
 	}
 
-	public Collection<ResourceLocation> getIdentifiers() {
+	public Collection<Identifier> getIdentifiers() {
 		return items.keySet();
 	}
 
-	public Collection<ResourceLocation> generatorTypeIdentifiers() {
+	public Collection<Identifier> generatorTypeIdentifiers() {
 		return generatorTypes.keySet();
 	}
 }
