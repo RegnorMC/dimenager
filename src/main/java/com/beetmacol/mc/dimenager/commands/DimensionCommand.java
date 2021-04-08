@@ -1,8 +1,11 @@
 package com.beetmacol.mc.dimenager.commands;
 
 import com.beetmacol.mc.dimenager.dimensions.GeneratedDimension;
+import com.beetmacol.mc.dimenager.dimensiontypes.DimensionTypeRepository;
 import com.beetmacol.mc.dimenager.dimensiontypes.GeneratedDimensionType;
 import com.beetmacol.mc.dimenager.generators.Generator;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -21,6 +24,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static com.beetmacol.mc.dimenager.Dimenager.*;
@@ -74,9 +78,14 @@ public class DimensionCommand {
 								.executes(context -> dimensionTypeRepository.listDimensionTypes(context.getSource()))
 						)
 						.then(Commands.literal("set")
-								.then(Commands.argument("property", StringArgumentType.string())
-										.then(Commands.argument("value", StringArgumentType.string()) // TODO suggestions
-												.executes(context -> 0)
+								.then(Commands.argument("type", ResourceLocationArgument.id())
+										.suggests(DimensionCommand::customDimensionTypeSuggestions)
+										.then(Commands.argument("property", StringArgumentType.string())
+												.suggests(DimensionCommand::dimensionTypePropertySuggestions)
+												.then(Commands.argument("value", StringArgumentType.string())
+														.suggests((context, builder) ->  dimensionTypePropertyValueSuggestions(context, builder, "property"))
+														.executes(context -> dimensionTypeRepository.setDimensionTypeProperty(context.getSource(), getGeneratedDimensionType(context, "type"), StringArgumentType.getString(context, "property"), StringArgumentType.getString(context, "value")))
+												)
 										)
 								)
 						)
@@ -174,6 +183,32 @@ public class DimensionCommand {
 		return builder.buildFuture();
 	}
 
+
+	private static CompletableFuture<Suggestions> dimensionTypePropertySuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
+		for (Map.Entry<String, JsonElement> entry : DimensionTypeRepository.DEFAULT_OVERWORLD_JSON.entrySet())
+			builder.suggest(entry.getKey());
+		return builder.buildFuture();
+	}
+
+	private static CompletableFuture<Suggestions> dimensionTypePropertyValueSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder, String propertyArgument) {
+		if (propertyArgument == null)
+			return builder.buildFuture();
+		for (Map.Entry<String, JsonElement> entry : DimensionTypeRepository.DEFAULT_OVERWORLD_JSON.entrySet())
+			if (entry.getKey().equals(StringArgumentType.getString(context, propertyArgument))) {
+				if (entry.getValue().isJsonPrimitive() && (((JsonPrimitive) entry.getValue()).isBoolean())) {
+					// If the value type is boolean we suggest 'false' and 'true'.
+					builder.suggest("false");
+					builder.suggest("true");
+				} else {
+					// Otherwise, we suggest the default overworld value
+					builder.suggest(entry.getValue().toString());
+				}
+				break;
+			}
+		return builder.buildFuture();
+	}
+
+
 	private static final DynamicCommandExceptionType INVALID_DIMENSION = new DynamicCommandExceptionType(identifier -> new TextComponent("Unknown dimension '" + identifier + "'"));
 	private static final DynamicCommandExceptionType CONFIGURED_DIMENSION = new DynamicCommandExceptionType(identifier -> new TextComponent("Dimension '" + identifier + "' is a configured dimension - please provide a dimension created using Dimenager"));
 	private static GeneratedDimension getGeneratedDimension(CommandContext<CommandSourceStack> context, String argument) throws CommandSyntaxException {
@@ -199,7 +234,7 @@ public class DimensionCommand {
 		getDimensionType(context, argument);
 		ResourceLocation identifier = context.getArgument(argument, ResourceLocation.class);
 		if (!dimensionTypeRepository.containsGenerated(identifier))
-			throw CONFIGURED_GENERATOR.create(identifier);
+			throw CONFIGURED_DIMENSION_TYPE.create(identifier);
 		return dimensionTypeRepository.getGenerated(identifier);
 	}
 

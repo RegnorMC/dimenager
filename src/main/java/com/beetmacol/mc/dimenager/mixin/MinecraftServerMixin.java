@@ -39,7 +39,7 @@ public class MinecraftServerMixin {
 	)
 	private void onServerInit(Thread thread, RegistryAccess.RegistryHolder registryHolder, LevelStorageSource.LevelStorageAccess levelStorageAccess, WorldData worldData, PackRepository packRepository, Proxy proxy, DataFixer dataFixer, ServerResources serverResources, MinecraftSessionService minecraftSessionService, GameProfileRepository gameProfileRepository, GameProfileCache gameProfileCache, ChunkProgressListenerFactory chunkProgressListenerFactory, CallbackInfo ci) {
 		Dimenager.registryReadOps = RegistryReadOps.create(JsonOps.INSTANCE, resources.getResourceManager(), registryHolder);
-		dimensionRepository = new DimensionRepository(serverResources.getResourceManager(), levelStorageAccess, ((MinecraftServerAccessor) this).getLevels(), registryHolder.dimensionTypes());
+		dimensionRepository = new DimensionRepository(serverResources.getResourceManager(), levelStorageAccess, ((MinecraftServerAccessor) this).getLevels());
 		dimensionTypeRepository = new DimensionTypeRepository(resources.getResourceManager(), levelStorageAccess, registryHolder.dimensionTypes());
 		generatorRepository = new GeneratorRepository(levelStorageAccess, registryHolder);
 		generatorRepository.reload();

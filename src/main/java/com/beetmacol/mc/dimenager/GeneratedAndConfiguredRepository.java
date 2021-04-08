@@ -18,9 +18,8 @@ public abstract class GeneratedAndConfiguredRepository<T extends GeneratedItem, 
 	}
 
 	@Override
-	public void addGeneratedItem(T item) {
-		super.addGeneratedItem(item);
-		items.put(item.getIdentifier(), null);
+	public void addGeneratedItem(T generatedItem) {
+		addGeneratedItem(generatedItem, null);
 	}
 
 	public void addGeneratedItem(T generatedItem, U item) {

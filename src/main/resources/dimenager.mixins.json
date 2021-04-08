@@ -9,6 +9,7 @@
   "mixins": [
     "AmbiguityWarningRemovalMixin",
     "CommandRegistrationMixin",
+    "DimensionTypeAccessor",
     "MinecraftServerAccessor",
     "MinecraftServerMixin",
     "TeleportCommandMixin",

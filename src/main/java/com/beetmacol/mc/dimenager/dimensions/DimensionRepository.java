@@ -31,12 +31,10 @@ import java.util.Map;
 
 public class DimensionRepository extends GeneratedAndConfiguredRepository<GeneratedDimension, ServerLevel> {
 	private final Map<ResourceKey<Level>, ServerLevel> serverLevels;
-	private final Registry<DimensionType> dimensionTypeRegistry;
 
-	public DimensionRepository(ResourceManager resourceManager, LevelStorageSource.LevelStorageAccess levelStorageAccess, Map<ResourceKey<Level>, ServerLevel> serverLevels, Registry<DimensionType> dimensionTypeRegistry) {
+	public DimensionRepository(ResourceManager resourceManager, LevelStorageSource.LevelStorageAccess levelStorageAccess, Map<ResourceKey<Level>, ServerLevel> serverLevels) {
 		super(resourceManager, levelStorageAccess, "dimension");
 		this.serverLevels = serverLevels;
-		this.dimensionTypeRegistry = dimensionTypeRegistry;
 	}
 
 	@Override
@@ -46,7 +44,7 @@ public class DimensionRepository extends GeneratedAndConfiguredRepository<Genera
 		ResourceLocation generatorIdentifier = new ResourceLocation(GsonHelper.getAsString(json, "generator"));
 		Generator generator = Dimenager.generatorRepository.get(generatorIdentifier);
 		if (generator == null) throw new JsonSyntaxException("Unknown generator '" + generatorIdentifier + "'");
-		return new GeneratedDimension(identifier, generatedDirectory, enabled, dimensionTypeRegistry.get(dimensionTypeIdentifier), dimensionTypeIdentifier, generator);
+		return new GeneratedDimension(identifier, generatedDirectory, enabled, Dimenager.dimensionTypeRepository.get(dimensionTypeIdentifier), dimensionTypeIdentifier, generator);
 	}
 
 	@Override
@@ -58,7 +56,9 @@ public class DimensionRepository extends GeneratedAndConfiguredRepository<Genera
 
 	public void createLevels(ChunkProgressListener chunkProgressListener, MinecraftServer server) {
 		for (GeneratedDimension generatedDimension : generatedItems.values()) {
-			if (generatedDimension.isEnabled()) {
+			if (generatedDimension.getType() == null) {
+				Dimenager.LOGGER.error("Could not load dimension '" + generatedDimension.getIdentifier() + "': dimension type is not loaded");
+			} else if (generatedDimension.isEnabled()) {
 				ResourceKey<Level> resourceKey = ResourceKey.create(Registry.DIMENSION_REGISTRY, generatedDimension.getIdentifier());
 				MinecraftServerAccessor serverAccessor = (MinecraftServerAccessor) server;
 				DerivedLevelData derivedLevelData = new DerivedLevelData(server.getWorldData(), server.getWorldData().overworldData());

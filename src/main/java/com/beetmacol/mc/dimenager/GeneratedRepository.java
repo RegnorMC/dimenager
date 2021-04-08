@@ -48,7 +48,7 @@ public abstract class GeneratedRepository<T extends GeneratedItem> {
 						try {
 							JsonReader jsonReader = new JsonReader(new FileReader(file));
 							JsonObject json = new JsonParser().parse(jsonReader).getAsJsonObject();
-							addGeneratedItem(fromJson(identifier, json));
+							addLoadedItem(fromJson(identifier, json));
 						} catch (IllegalStateException | JsonSyntaxException exception) {
 							Dimenager.LOGGER.error("Could not read JSON data of a " + itemGeneralName + " with id '" + identifier + "'", exception);
 						} catch (FileNotFoundException exception) {
@@ -61,6 +61,10 @@ public abstract class GeneratedRepository<T extends GeneratedItem> {
 	}
 
 	protected abstract T fromJson(ResourceLocation identifier, JsonObject json) throws JsonSyntaxException;
+
+	protected void addLoadedItem(T item) {
+		addGeneratedItem(item);
+	}
 
 	public T getGenerated(ResourceLocation identifier) {
 		return generatedItems.get(identifier);
