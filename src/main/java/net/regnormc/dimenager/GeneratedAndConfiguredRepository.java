@@ -1,4 +1,4 @@
-package com.beetmacol.mc.dimenager;
+package net.regnormc.dimenager;
 
 import java.util.Collection;
 import java.util.HashMap;

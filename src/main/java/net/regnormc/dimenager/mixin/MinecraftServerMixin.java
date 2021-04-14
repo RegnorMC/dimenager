@@ -1,8 +1,8 @@
-package com.beetmacol.mc.dimenager.mixin;
+package net.regnormc.dimenager.mixin;
 
-import com.beetmacol.mc.dimenager.dimensions.DimensionRepository;
-import com.beetmacol.mc.dimenager.dimensiontypes.DimensionTypeRepository;
-import com.beetmacol.mc.dimenager.generators.GeneratorRepository;
+import net.regnormc.dimenager.dimensions.DimensionRepository;
+import net.regnormc.dimenager.dimensiontypes.DimensionTypeRepository;
+import net.regnormc.dimenager.generators.GeneratorRepository;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
@@ -17,6 +17,7 @@ import net.minecraft.util.dynamic.RegistryOps;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.SaveProperties;
 import net.minecraft.world.level.storage.LevelStorage;
+import net.regnormc.dimenager.Dimenager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -24,8 +25,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.net.Proxy;
 import java.util.Collection;
-
-import static com.beetmacol.mc.dimenager.Dimenager.*;
 
 @Mixin(MinecraftServer.class)
 public class MinecraftServerMixin {
@@ -35,12 +34,12 @@ public class MinecraftServerMixin {
 			at = @At("TAIL")
 	)
 	private void onServerInit(Thread thread, DynamicRegistryManager.Impl registryHolder, LevelStorage.Session levelStorageAccess, SaveProperties worldData, ResourcePackManager packRepository, Proxy proxy, DataFixer dataFixer, ServerResourceManager serverResources, MinecraftSessionService minecraftSessionService, GameProfileRepository gameProfileRepository, UserCache gameProfileCache, WorldGenerationProgressListenerFactory chunkProgressListenerFactory, CallbackInfo ci) {
-		registryReadOps = RegistryOps.of(JsonOps.INSTANCE, serverResources.getResourceManager(), registryHolder);
-		dimensionRepository = new DimensionRepository(serverResources.getResourceManager(), levelStorageAccess, ((MinecraftServerAccessor) this).getWorlds());
-		dimensionTypeRepository = new DimensionTypeRepository(serverResources.getResourceManager(), levelStorageAccess, registryHolder.getDimensionTypes());
-		generatorRepository = new GeneratorRepository(levelStorageAccess, registryHolder);
-		generatorRepository.reload();
-		dimensionTypeRepository.reload();
+		Dimenager.registryReadOps = RegistryOps.of(JsonOps.INSTANCE, serverResources.getResourceManager(), registryHolder);
+		Dimenager.dimensionRepository = new DimensionRepository(serverResources.getResourceManager(), levelStorageAccess, ((MinecraftServerAccessor) this).getWorlds());
+		Dimenager.dimensionTypeRepository = new DimensionTypeRepository(serverResources.getResourceManager(), levelStorageAccess, registryHolder.getDimensionTypes());
+		Dimenager.generatorRepository = new GeneratorRepository(levelStorageAccess, registryHolder);
+		Dimenager.generatorRepository.reload();
+		Dimenager.dimensionTypeRepository.reload();
 	}
 
 	@Inject(
@@ -48,9 +47,9 @@ public class MinecraftServerMixin {
 			at = @At("TAIL")
 	)
 	private void onLevelsLoad(WorldGenerationProgressListener chunkProgressListener, CallbackInfo ci) {
-		generatorRepository.addDimensionMirrorGenerators(((MinecraftServerAccessor) this).getWorlds());
-		dimensionRepository.reload();
-		dimensionRepository.createLevels(chunkProgressListener, (MinecraftServer) (Object) this);
+		Dimenager.generatorRepository.addDimensionMirrorGenerators(((MinecraftServerAccessor) this).getWorlds());
+		Dimenager.dimensionRepository.reload();
+		Dimenager.dimensionRepository.createLevels(chunkProgressListener, (MinecraftServer) (Object) this);
 	}
 
 	@SuppressWarnings("UnresolvedMixinReference")
@@ -59,8 +58,8 @@ public class MinecraftServerMixin {
 			at = @At("TAIL")
 	)
 	private void onResourcesReload(Collection<String> collection, ServerResourceManager resources, CallbackInfo ci) {
-		dimensionRepository.resourceManagerReload(resources.getResourceManager());
-		dimensionTypeRepository.resourceManagerReload(resources.getResourceManager());
-		generatorRepository.resourceManagerReload(resources.getResourceManager());
+		Dimenager.dimensionRepository.resourceManagerReload(resources.getResourceManager());
+		Dimenager.dimensionTypeRepository.resourceManagerReload(resources.getResourceManager());
+		Dimenager.generatorRepository.resourceManagerReload(resources.getResourceManager());
 	}
 }

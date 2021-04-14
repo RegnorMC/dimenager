@@ -1,7 +1,7 @@
-package com.beetmacol.mc.dimenager.dimensiontypes;
+package net.regnormc.dimenager.dimensiontypes;
 
-import com.beetmacol.mc.dimenager.Dimenager;
-import com.beetmacol.mc.dimenager.GeneratedItem;
+import net.regnormc.dimenager.Dimenager;
+import net.regnormc.dimenager.GeneratedItem;
 import com.google.gson.JsonObject;
 import java.nio.file.Path;
 import net.minecraft.util.Identifier;

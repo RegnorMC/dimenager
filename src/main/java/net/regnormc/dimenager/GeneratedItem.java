@@ -1,4 +1,4 @@
-package com.beetmacol.mc.dimenager;
+package net.regnormc.dimenager;
 
 import com.google.gson.JsonObject;
 import net.minecraft.util.Identifier;

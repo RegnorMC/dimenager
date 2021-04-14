@@ -1,6 +1,6 @@
-package com.beetmacol.mc.dimenager.mixin;
+package net.regnormc.dimenager.mixin;
 
-import com.beetmacol.mc.dimenager.Dimenager;
+import net.regnormc.dimenager.Dimenager;
 import com.mojang.brigadier.AmbiguityConsumer;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.server.command.CommandManager;

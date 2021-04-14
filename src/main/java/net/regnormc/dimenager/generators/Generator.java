@@ -1,7 +1,7 @@
-package com.beetmacol.mc.dimenager.generators;
+package net.regnormc.dimenager.generators;
 
-import com.beetmacol.mc.dimenager.Dimenager;
-import com.beetmacol.mc.dimenager.GeneratedItem;
+import net.regnormc.dimenager.Dimenager;
+import net.regnormc.dimenager.GeneratedItem;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;

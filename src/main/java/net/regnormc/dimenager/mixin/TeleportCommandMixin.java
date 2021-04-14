@@ -1,7 +1,7 @@
-package com.beetmacol.mc.dimenager.mixin;
+package net.regnormc.dimenager.mixin;
 
-import com.beetmacol.mc.dimenager.Dimenager;
-import com.beetmacol.mc.dimenager.commands.DimensionCommand;
+import net.regnormc.dimenager.Dimenager;
+import net.regnormc.dimenager.commands.DimensionCommand;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;

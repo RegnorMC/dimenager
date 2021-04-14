@@ -1,4 +1,4 @@
-package com.beetmacol.mc.dimenager.generators;
+package net.regnormc.dimenager.generators;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.block.BlockState;
@@ -19,15 +19,14 @@ import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.StructuresConfig;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
+import net.regnormc.dimenager.Dimenager;
 
 import java.util.HashMap;
 import java.util.Optional;
 
-import static com.beetmacol.mc.dimenager.Dimenager.MOD_ID;
-
 public class VoidGeneratorType extends ChunkGenerator {
 	public static final Codec<VoidGeneratorType> CODEC = RegistryLookupCodec.of(Registry.BIOME_KEY).xmap(VoidGeneratorType::new, VoidGeneratorType::biomes).stable().codec();
-	public static final Identifier IDENTIFIER = new Identifier(MOD_ID, "void");
+	public static final Identifier IDENTIFIER = new Identifier(Dimenager.MOD_ID, "void");
 	private final Registry<Biome> biomes;
 
 	public VoidGeneratorType(Registry<Biome> registry) {

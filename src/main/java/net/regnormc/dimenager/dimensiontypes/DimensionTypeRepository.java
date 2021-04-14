@@ -1,8 +1,8 @@
-package com.beetmacol.mc.dimenager.dimensiontypes;
+package net.regnormc.dimenager.dimensiontypes;
 
-import com.beetmacol.mc.dimenager.Dimenager;
-import com.beetmacol.mc.dimenager.GeneratedAndConfiguredRepository;
-import com.beetmacol.mc.dimenager.mixin.DimensionTypeAccessor;
+import net.regnormc.dimenager.Dimenager;
+import net.regnormc.dimenager.GeneratedAndConfiguredRepository;
+import net.regnormc.dimenager.mixin.DimensionTypeAccessor;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;

@@ -1,9 +1,9 @@
-package com.beetmacol.mc.dimenager.commands;
+package net.regnormc.dimenager.commands;
 
-import com.beetmacol.mc.dimenager.dimensions.GeneratedDimension;
-import com.beetmacol.mc.dimenager.dimensiontypes.DimensionTypeRepository;
-import com.beetmacol.mc.dimenager.dimensiontypes.GeneratedDimensionType;
-import com.beetmacol.mc.dimenager.generators.Generator;
+import net.regnormc.dimenager.dimensions.GeneratedDimension;
+import net.regnormc.dimenager.dimensiontypes.DimensionTypeRepository;
+import net.regnormc.dimenager.dimensiontypes.GeneratedDimensionType;
+import net.regnormc.dimenager.generators.Generator;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.mojang.brigadier.CommandDispatcher;
@@ -23,11 +23,10 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.regnormc.dimenager.Dimenager;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-
-import static com.beetmacol.mc.dimenager.Dimenager.*;
 
 @SuppressWarnings("SameParameterValue")
 public class DimensionCommand {
@@ -41,7 +40,7 @@ public class DimensionCommand {
 												.suggests(DimensionCommand::dimensionTypeSuggestions)
 												.then(CommandManager.argument("generator", IdentifierArgumentType.identifier())
 														.suggests(DimensionCommand::generatorSuggestions)
-														.executes(context -> dimensionRepository.createDimension(context.getSource(), IdentifierArgumentType.getIdentifier(context, "identifier"), getDimensionType(context, "type"), IdentifierArgumentType.getIdentifier(context, "type"), getGenerator(context, "generator")))
+														.executes(context -> Dimenager.dimensionRepository.createDimension(context.getSource(), IdentifierArgumentType.getIdentifier(context, "identifier"), getDimensionType(context, "type"), IdentifierArgumentType.getIdentifier(context, "type"), getGenerator(context, "generator")))
 												)
 										)
 								)
@@ -49,30 +48,30 @@ public class DimensionCommand {
 						.then(CommandManager.literal("remove")
 								.then(CommandManager.argument("dimension", IdentifierArgumentType.identifier())
 										.suggests(DimensionCommand::customDimensionSuggestions)
-										.executes(context -> dimensionRepository.deleteDimension(context.getSource(), getGeneratedDimension(context, "dimension")))
+										.executes(context -> Dimenager.dimensionRepository.deleteDimension(context.getSource(), getGeneratedDimension(context, "dimension")))
 								)
 						)
 						.then(CommandManager.literal("list")
-								.executes(context -> dimensionRepository.listDimensions(context.getSource()))
+								.executes(context -> Dimenager.dimensionRepository.listDimensions(context.getSource()))
 						)
 						.then(CommandManager.literal("set")
 								.then(CommandManager.argument("dimension", IdentifierArgumentType.identifier())
 										.suggests(DimensionCommand::customDimensionSuggestions)
 										.then(CommandManager.literal("enabled")
 												.then(CommandManager.argument("value", BoolArgumentType.bool())
-														.executes(context -> dimensionRepository.setEnabled(context.getSource(), getGeneratedDimension(context, "dimension"), BoolArgumentType.getBool(context, "value")))
+														.executes(context -> Dimenager.dimensionRepository.setEnabled(context.getSource(), getGeneratedDimension(context, "dimension"), BoolArgumentType.getBool(context, "value")))
 												)
 										)
 										.then(CommandManager.literal("type")
 												.then(CommandManager.argument("value", IdentifierArgumentType.identifier())
 														.suggests(DimensionCommand::dimensionTypeSuggestions)
-														.executes(context -> dimensionRepository.setType(context.getSource(), getGeneratedDimension(context, "dimension"), getDimensionType(context, "value"), IdentifierArgumentType.getIdentifier(context, "value")))
+														.executes(context -> Dimenager.dimensionRepository.setType(context.getSource(), getGeneratedDimension(context, "dimension"), getDimensionType(context, "value"), IdentifierArgumentType.getIdentifier(context, "value")))
 												)
 										)
 										.then(CommandManager.literal("generator")
 												.then(CommandManager.argument("value", IdentifierArgumentType.identifier())
 														.suggests(DimensionCommand::generatorSuggestions)
-														.executes(context -> dimensionRepository.setGenerator(context.getSource(), getGeneratedDimension(context, "dimension"), getGenerator(context, "value")))
+														.executes(context -> Dimenager.dimensionRepository.setGenerator(context.getSource(), getGeneratedDimension(context, "dimension"), getGenerator(context, "value")))
 												)
 										)
 								)
@@ -80,24 +79,24 @@ public class DimensionCommand {
 						.then(CommandManager.literal("load")
 								.then(CommandManager.argument("dimension", IdentifierArgumentType.identifier())
 										.suggests(DimensionCommand::unloadedCustomDimensionSuggestions)
-										.executes(context -> dimensionRepository.load(context.getSource(), getGeneratedDimension(context, "dimension")))
+										.executes(context -> Dimenager.dimensionRepository.load(context.getSource(), getGeneratedDimension(context, "dimension")))
 								)
 						)
 						.then(CommandManager.literal("unload")
 								.then(CommandManager.argument("dimension", IdentifierArgumentType.identifier())
 										.suggests(DimensionCommand::loadedCustomDimensionSuggestions)
-										.executes(context -> dimensionRepository.unload(context.getSource(), getGeneratedDimension(context, "dimension")))
+										.executes(context -> Dimenager.dimensionRepository.unload(context.getSource(), getGeneratedDimension(context, "dimension")))
 								)
 						)
 				)
 				.then(CommandManager.literal("types")
 						.then(CommandManager.literal("add")
 								.then(CommandManager.argument("identifier", IdentifierArgumentType.identifier())
-										.executes(context -> dimensionTypeRepository.createDimensionType(context.getSource(), IdentifierArgumentType.getIdentifier(context, "identifier")))
+										.executes(context -> Dimenager.dimensionTypeRepository.createDimensionType(context.getSource(), IdentifierArgumentType.getIdentifier(context, "identifier")))
 										.then(CommandManager.literal("copy")
 												.then(CommandManager.argument("other", IdentifierArgumentType.identifier())
 														.suggests(DimensionCommand::dimensionTypeSuggestions)
-														.executes(context -> dimensionTypeRepository.createDimensionType(context.getSource(), IdentifierArgumentType.getIdentifier(context, "identifier"), IdentifierArgumentType.getIdentifier(context, "copied"), getDimensionType(context, "other")))
+														.executes(context -> Dimenager.dimensionTypeRepository.createDimensionType(context.getSource(), IdentifierArgumentType.getIdentifier(context, "identifier"), IdentifierArgumentType.getIdentifier(context, "copied"), getDimensionType(context, "other")))
 												)
 										)
 								)
@@ -105,11 +104,11 @@ public class DimensionCommand {
 						.then(CommandManager.literal("remove")
 								.then(CommandManager.argument("type", IdentifierArgumentType.identifier())
 										.suggests(DimensionCommand::customDimensionTypeSuggestions)
-										.executes(context -> dimensionTypeRepository.deleteDimensionType(context.getSource(), getGeneratedDimensionType(context, "type")))
+										.executes(context -> Dimenager.dimensionTypeRepository.deleteDimensionType(context.getSource(), getGeneratedDimensionType(context, "type")))
 								)
 						)
 						.then(CommandManager.literal("list")
-								.executes(context -> dimensionTypeRepository.listDimensionTypes(context.getSource()))
+								.executes(context -> Dimenager.dimensionTypeRepository.listDimensionTypes(context.getSource()))
 						)
 						.then(CommandManager.literal("set")
 								.then(CommandManager.argument("type", IdentifierArgumentType.identifier())
@@ -118,7 +117,7 @@ public class DimensionCommand {
 												.suggests(DimensionCommand::dimensionTypePropertySuggestions)
 												.then(CommandManager.argument("value", StringArgumentType.string())
 														.suggests((context, builder) ->  dimensionTypePropertyValueSuggestions(context, builder, "property"))
-														.executes(context -> dimensionTypeRepository.setDimensionTypeProperty(context.getSource(), getGeneratedDimensionType(context, "type"), StringArgumentType.getString(context, "property"), StringArgumentType.getString(context, "value")))
+														.executes(context -> Dimenager.dimensionTypeRepository.setDimensionTypeProperty(context.getSource(), getGeneratedDimensionType(context, "type"), StringArgumentType.getString(context, "property"), StringArgumentType.getString(context, "value")))
 												)
 										)
 								)
@@ -130,16 +129,16 @@ public class DimensionCommand {
 										.then(CommandManager.literal("new")
 												.then(CommandManager.argument("type", IdentifierArgumentType.identifier())
 														.suggests(DimensionCommand::generatorTypeSuggestions)
-														.executes(context -> generatorRepository.createGenerator(context.getSource(), IdentifierArgumentType.getIdentifier(context, "identifier"), IdentifierArgumentType.getIdentifier(context, "type"), getGeneratorCodec(context, "type")))
+														.executes(context -> Dimenager.generatorRepository.createGenerator(context.getSource(), IdentifierArgumentType.getIdentifier(context, "identifier"), IdentifierArgumentType.getIdentifier(context, "type"), getGeneratorCodec(context, "type")))
 														.then(CommandManager.argument("seed", LongArgumentType.longArg())
-																.executes(context -> generatorRepository.createGenerator(context.getSource(), IdentifierArgumentType.getIdentifier(context, "identifier"), IdentifierArgumentType.getIdentifier(context, "type"), getGeneratorCodec(context, "type"), LongArgumentType.getLong(context, "seed")))
+																.executes(context -> Dimenager.generatorRepository.createGenerator(context.getSource(), IdentifierArgumentType.getIdentifier(context, "identifier"), IdentifierArgumentType.getIdentifier(context, "type"), getGeneratorCodec(context, "type"), LongArgumentType.getLong(context, "seed")))
 														)
 												)
 										)
 										.then(CommandManager.literal("copy")
 												.then(CommandManager.argument("other", IdentifierArgumentType.identifier())
 														.suggests(DimensionCommand::generatorSuggestions)
-														.executes(context -> generatorRepository.createGenerator(context.getSource(), IdentifierArgumentType.getIdentifier(context, "identifier"), getGenerator(context, "other")))
+														.executes(context -> Dimenager.generatorRepository.createGenerator(context.getSource(), IdentifierArgumentType.getIdentifier(context, "identifier"), getGenerator(context, "other")))
 												)
 										)
 								)
@@ -147,14 +146,14 @@ public class DimensionCommand {
 						.then(CommandManager.literal("remove")
 								.then(CommandManager.argument("generator", IdentifierArgumentType.identifier())
 										.suggests(DimensionCommand::customGeneratorSuggestions)
-										.executes(context -> generatorRepository.deleteGenerator(context.getSource(), getGeneratedGenerator(context, "generator")))
+										.executes(context -> Dimenager.generatorRepository.deleteGenerator(context.getSource(), getGeneratedGenerator(context, "generator")))
 								)
 						)
 						.then(CommandManager.literal("data")
 								.then(CommandManager.literal("get")
 										.then(CommandManager.argument("generator", IdentifierArgumentType.identifier())
 												.suggests(DimensionCommand::generatorSuggestions)
-												.executes(context -> generatorRepository.printData(context.getSource(), getGenerator(context, "generator")))
+												.executes(context -> Dimenager.generatorRepository.printData(context.getSource(), getGenerator(context, "generator")))
 										)
 								)
 								.then(CommandManager.literal("modify")
@@ -169,71 +168,71 @@ public class DimensionCommand {
 								)
 						)
 						.then(CommandManager.literal("list")
-								.executes(context -> generatorRepository.listGenerators(context.getSource()))
+								.executes(context -> Dimenager.generatorRepository.listGenerators(context.getSource()))
 						)
 						.then(CommandManager.literal("types")
-								.executes(context -> generatorRepository.listGeneratorTypes(context.getSource()))
+								.executes(context -> Dimenager.generatorRepository.listGeneratorTypes(context.getSource()))
 						)
 				)
 		);
 	}
 
 	public static CompletableFuture<Suggestions> loadedDimensionSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
-		for (Identifier identifier : dimensionRepository.getIdentifiers())
-			if (dimensionRepository.get(identifier) != null)
+		for (Identifier identifier : Dimenager.dimensionRepository.getIdentifiers())
+			if (Dimenager.dimensionRepository.get(identifier) != null)
 				builder.suggest(identifier.toString());
 		return builder.buildFuture();
 	}
 
 	private static CompletableFuture<Suggestions> customDimensionSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
-		for (Identifier identifier : dimensionRepository.getGeneratedIdentifiers())
+		for (Identifier identifier : Dimenager.dimensionRepository.getGeneratedIdentifiers())
 			builder.suggest(identifier.toString());
 		return builder.buildFuture();
 	}
 
 	private static CompletableFuture<Suggestions> loadedCustomDimensionSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
-		for (Identifier identifier : dimensionRepository.getGeneratedIdentifiers())
-			if (dimensionRepository.get(identifier) != null)
+		for (Identifier identifier : Dimenager.dimensionRepository.getGeneratedIdentifiers())
+			if (Dimenager.dimensionRepository.get(identifier) != null)
 				builder.suggest(identifier.toString());
 		return builder.buildFuture();
 	}
 
 	private static CompletableFuture<Suggestions> unloadedCustomDimensionSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
-		for (Identifier identifier : dimensionRepository.getGeneratedIdentifiers())
-			if (dimensionRepository.get(identifier) == null)
+		for (Identifier identifier : Dimenager.dimensionRepository.getGeneratedIdentifiers())
+			if (Dimenager.dimensionRepository.get(identifier) == null)
 				builder.suggest(identifier.toString());
 		return builder.buildFuture();
 	}
 
 
 	private static CompletableFuture<Suggestions> dimensionTypeSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
-		for (Identifier identifier : dimensionTypeRepository.getIdentifiers())
+		for (Identifier identifier : Dimenager.dimensionTypeRepository.getIdentifiers())
 			builder.suggest(identifier.toString());
 		return builder.buildFuture();
 	}
 
 	private static CompletableFuture<Suggestions> customDimensionTypeSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
-		for (Identifier identifier : dimensionTypeRepository.getGeneratedIdentifiers())
+		for (Identifier identifier : Dimenager.dimensionTypeRepository.getGeneratedIdentifiers())
 			builder.suggest(identifier.toString());
 		return builder.buildFuture();
 	}
 
 
 	private static CompletableFuture<Suggestions> generatorSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
-		for (Identifier identifier : generatorRepository.getIdentifiers())
+		for (Identifier identifier : Dimenager.generatorRepository.getIdentifiers())
 			builder.suggest(identifier.toString());
 		return builder.buildFuture();
 	}
 
 	private static CompletableFuture<Suggestions> customGeneratorSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
-		for (Identifier identifier : generatorRepository.getGeneratedIdentifiers())
+		for (Identifier identifier : Dimenager.generatorRepository.getGeneratedIdentifiers())
 			builder.suggest(identifier.toString());
 		return builder.buildFuture();
 	}
 
 
 	private static CompletableFuture<Suggestions> generatorTypeSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
-		for (Identifier identifier : generatorRepository.generatorTypeIdentifiers())
+		for (Identifier identifier : Dimenager.generatorRepository.generatorTypeIdentifiers())
 			builder.suggest(identifier.toString());
 		return builder.buildFuture();
 	}
@@ -268,9 +267,9 @@ public class DimensionCommand {
 	private static final DynamicCommandExceptionType CONFIGURED_DIMENSION = new DynamicCommandExceptionType(identifier -> new LiteralText("Dimension '" + identifier + "' is a configured dimension - please provide a dimension created using Dimenager"));
 	private static GeneratedDimension getGeneratedDimension(CommandContext<ServerCommandSource> context, String argument) throws CommandSyntaxException {
 		Identifier identifier = context.getArgument(argument, Identifier.class);
-		if (!dimensionRepository.contains(identifier))
+		if (!Dimenager.dimensionRepository.contains(identifier))
 			throw INVALID_DIMENSION.create(identifier);
-		GeneratedDimension dimension = dimensionRepository.getGenerated(identifier);
+		GeneratedDimension dimension = Dimenager.dimensionRepository.getGenerated(identifier);
 		if (dimension == null)
 			throw CONFIGURED_DIMENSION.create(identifier);
 		return dimension;
@@ -279,33 +278,33 @@ public class DimensionCommand {
 	private static final DynamicCommandExceptionType INVALID_DIMENSION_TYPE = new DynamicCommandExceptionType(identifier -> new LiteralText("Unknown dimension type '" + identifier + "'"));
 	private static DimensionType getDimensionType(CommandContext<ServerCommandSource> context, String argument) throws CommandSyntaxException {
 		Identifier identifier = context.getArgument(argument, Identifier.class);
-		if (!dimensionTypeRepository.contains(identifier))
+		if (!Dimenager.dimensionTypeRepository.contains(identifier))
 			throw INVALID_DIMENSION_TYPE.create(identifier);
-		return dimensionTypeRepository.get(identifier);
+		return Dimenager.dimensionTypeRepository.get(identifier);
 	}
 
 	private static final DynamicCommandExceptionType CONFIGURED_DIMENSION_TYPE = new DynamicCommandExceptionType(identifier -> new LiteralText("Dimension type '" + identifier + "' is a configured dimension type - please provide a type created using Dimenager"));
 	private static GeneratedDimensionType getGeneratedDimensionType(CommandContext<ServerCommandSource> context, String argument) throws CommandSyntaxException {
 		getDimensionType(context, argument);
 		Identifier identifier = context.getArgument(argument, Identifier.class);
-		if (!dimensionTypeRepository.containsGenerated(identifier))
+		if (!Dimenager.dimensionTypeRepository.containsGenerated(identifier))
 			throw CONFIGURED_DIMENSION_TYPE.create(identifier);
-		return dimensionTypeRepository.getGenerated(identifier);
+		return Dimenager.dimensionTypeRepository.getGenerated(identifier);
 	}
 
 	private static final DynamicCommandExceptionType INVALID_GENERATOR = new DynamicCommandExceptionType(identifier -> new LiteralText("Unknown generator '" + identifier + "'"));
 	private static Generator getGenerator(CommandContext<ServerCommandSource> context, String argument) throws CommandSyntaxException {
 		Identifier identifier = context.getArgument(argument, Identifier.class);
-		if (!generatorRepository.contains(identifier))
+		if (!Dimenager.generatorRepository.contains(identifier))
 			throw INVALID_GENERATOR.create(identifier);
-		return generatorRepository.get(identifier);
+		return Dimenager.generatorRepository.get(identifier);
 	}
 
 	private static final DynamicCommandExceptionType CONFIGURED_GENERATOR = new DynamicCommandExceptionType(identifier -> new LiteralText("Generator '" + identifier + "' is a default generator for its type - please provide a generated created using Dimenager"));
 	private static Generator getGeneratedGenerator(CommandContext<ServerCommandSource> context, String argument) throws CommandSyntaxException {
 		Generator generator = getGenerator(context, argument);
 		Identifier identifier = context.getArgument(argument, Identifier.class);
-		if (!generatorRepository.containsGenerated(identifier))
+		if (!Dimenager.generatorRepository.containsGenerated(identifier))
 			throw CONFIGURED_GENERATOR.create(identifier);
 		return generator;
 	}
@@ -313,9 +312,9 @@ public class DimensionCommand {
 	private static final DynamicCommandExceptionType INVALID_GENERATOR_TYPE = new DynamicCommandExceptionType(identifier -> new LiteralText("Unknown generator type '" + identifier + "'"));
 	private static Codec<? extends ChunkGenerator> getGeneratorCodec(CommandContext<ServerCommandSource> context, String argument) throws CommandSyntaxException {
 		Identifier identifier = context.getArgument(argument, Identifier.class);
-		if (!generatorRepository.containsGeneratorType(identifier)) {
+		if (!Dimenager.generatorRepository.containsGeneratorType(identifier)) {
 			throw INVALID_GENERATOR_TYPE.create(identifier);
 		}
-		return generatorRepository.getGeneratorType(identifier);
+		return Dimenager.generatorRepository.getGeneratorType(identifier);
 	}
 }

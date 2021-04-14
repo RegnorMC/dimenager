@@ -1,11 +1,11 @@
-package com.beetmacol.mc.dimenager;
+package net.regnormc.dimenager;
 
-import com.beetmacol.mc.dimenager.config.DimenagerConfiguration;
-import com.beetmacol.mc.dimenager.dimensions.DimensionRepository;
-import com.beetmacol.mc.dimenager.dimensiontypes.DimensionTypeRepository;
-import com.beetmacol.mc.dimenager.generators.DefaultGeneratorTypeLoader;
-import com.beetmacol.mc.dimenager.generators.GeneratorRepository;
-import com.beetmacol.mc.dimenager.generators.VoidGeneratorType;
+import net.regnormc.dimenager.config.DimenagerConfiguration;
+import net.regnormc.dimenager.dimensions.DimensionRepository;
+import net.regnormc.dimenager.dimensiontypes.DimensionTypeRepository;
+import net.regnormc.dimenager.generators.DefaultGeneratorTypeLoader;
+import net.regnormc.dimenager.generators.GeneratorRepository;
+import net.regnormc.dimenager.generators.VoidGeneratorType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;

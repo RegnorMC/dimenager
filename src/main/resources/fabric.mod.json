@@ -9,14 +9,14 @@
     "BeetMacol"
   ],
   "contact": {
-    "sources": "https://github.com/BeetMacol/dimenager"
+    "sources": "https://github.com/RegnorMC/dimenager"
   },
-  "license": "BSD-3-Clause-Clear",
+  "license": "BSD-3-Clause",
 
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.beetmacol.mc.dimenager.Dimenager::init"
+      "net.regnormc.dimenager.Dimenager::init"
     ]
   },
   "mixins": [

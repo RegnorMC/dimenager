@@ -1,7 +1,7 @@
-package com.beetmacol.mc.dimenager.generators;
+package net.regnormc.dimenager.generators;
 
-import com.beetmacol.mc.dimenager.Dimenager;
-import com.beetmacol.mc.dimenager.GeneratedRepository;
+import net.regnormc.dimenager.Dimenager;
+import net.regnormc.dimenager.GeneratedRepository;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.serialization.Codec;
@@ -21,8 +21,6 @@ import net.minecraft.world.level.storage.LevelStorage;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.beetmacol.mc.dimenager.Dimenager.defaultGeneratorTypeLoader;
 
 public class GeneratorRepository extends GeneratedRepository<Generator> {
 	public static final Identifier VOID = new Identifier(Dimenager.MOD_ID, "void");
@@ -108,7 +106,7 @@ public class GeneratorRepository extends GeneratedRepository<Generator> {
 			source.sendError(new LiteralText("A generator with id '" + identifier + "' already exists"));
 			return 0;
 		}
-		JsonObject typeDefaults = defaultGeneratorTypeLoader.getDefaults().get(typeIdentifier);
+		JsonObject typeDefaults = Dimenager.defaultGeneratorTypeLoader.getDefaults().get(typeIdentifier);
 		if (typeDefaults == null) {
 			source.sendError(new LiteralText("Missing default settings for generator type with id '" + typeIdentifier + "'"));
 			return 0;

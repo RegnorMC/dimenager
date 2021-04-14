@@ -1,6 +1,6 @@
-package com.beetmacol.mc.dimenager.generators;
+package net.regnormc.dimenager.generators;
 
-import com.beetmacol.mc.dimenager.Dimenager;
+import net.regnormc.dimenager.Dimenager;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -9,6 +9,7 @@ import net.minecraft.resource.JsonDataLoader;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.profiler.Profiler;
+
 import java.util.HashMap;
 import java.util.Map;
 

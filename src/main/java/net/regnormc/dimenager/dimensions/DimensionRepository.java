@@ -1,9 +1,9 @@
-package com.beetmacol.mc.dimenager.dimensions;
+package net.regnormc.dimenager.dimensions;
 
-import com.beetmacol.mc.dimenager.Dimenager;
-import com.beetmacol.mc.dimenager.GeneratedAndConfiguredRepository;
-import com.beetmacol.mc.dimenager.generators.Generator;
-import com.beetmacol.mc.dimenager.mixin.MinecraftServerAccessor;
+import net.regnormc.dimenager.Dimenager;
+import net.regnormc.dimenager.GeneratedAndConfiguredRepository;
+import net.regnormc.dimenager.generators.Generator;
+import net.regnormc.dimenager.mixin.MinecraftServerAccessor;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;

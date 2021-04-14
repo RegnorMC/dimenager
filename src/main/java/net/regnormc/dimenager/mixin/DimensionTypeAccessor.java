@@ -1,4 +1,4 @@
-package com.beetmacol.mc.dimenager.mixin;
+package net.regnormc.dimenager.mixin;
 
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
