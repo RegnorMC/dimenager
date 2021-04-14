@@ -16,6 +16,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Texts;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
@@ -163,6 +164,17 @@ public class DimensionRepository extends GeneratedAndConfiguredRepository<Genera
 		}
 
 		ServerWorld level = items.get(dimension.getIdentifier());
+
+		int playersAmount = level.getPlayers().size();
+		for (int i = 0; i < playersAmount; i++) {
+			BlockPos spawnPos = level.getServer().getOverworld().getSpawnPos();
+			float spawnAngle = level.getServer().getOverworld().getSpawnAngle();
+			level.getPlayers().get(i).teleport(level.getServer().getOverworld(), spawnPos.getX(), spawnPos.getY(), spawnPos.getZ(), spawnAngle, 0f);
+		}
+		if (playersAmount > 0) {
+			source.sendFeedback(new LiteralText("Teleported " + playersAmount + " to the Overworld's spawn, to allow dimension unloading"), true);
+		}
+
 		Dimenager.LOGGER.info("Saving chunks for level '{}'/{}", level, dimension.getIdentifier());
 		level.save(null, true, true);
 		try {
