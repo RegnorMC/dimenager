@@ -1,6 +1,7 @@
 package com.beetmacol.mc.dimenager.mixin;
 
 import com.beetmacol.mc.dimenager.Dimenager;
+import com.beetmacol.mc.dimenager.commands.DimensionCommand;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -47,6 +48,7 @@ public abstract class TeleportCommandMixin {
 			// tp <dimension> ...
 			teleportCommandNode
 					.addChild(CommandManager.argument("dimension", DimensionArgumentType.dimension())
+							.suggests(DimensionCommand::loadedDimensionSuggestions)
 							.executes(context -> teleport(context.getSource(), DimensionArgumentType.getDimensionArgument(context, "dimension"), null, null))
 							.then(CommandManager.argument("location", Vec3ArgumentType.vec3())
 									.executes(context -> teleport(context.getSource(), DimensionArgumentType.getDimensionArgument(context, "dimension"), Vec3ArgumentType.getPosArgument(context, "location"), null))
@@ -59,13 +61,14 @@ public abstract class TeleportCommandMixin {
 			// tp <targets> <dimension> ...
 			teleportCommandNode
 					.getChild("targets").addChild(CommandManager.argument("dimension", DimensionArgumentType.dimension())
-					.executes(context -> teleport(context.getSource(), EntityArgumentType.getEntities(context, "targets"), DimensionArgumentType.getDimensionArgument(context, "dimension"), null, null))
-					.then(CommandManager.argument("location", Vec3ArgumentType.vec3())
-							.executes(context -> teleport(context.getSource(), EntityArgumentType.getEntities(context, "targets"), DimensionArgumentType.getDimensionArgument(context, "dimension"), Vec3ArgumentType.getPosArgument(context, "location"), null))
-							.then(CommandManager.argument("rotation", RotationArgumentType.rotation())
-									.executes(context -> teleport(context.getSource(), EntityArgumentType.getEntities(context, "targets"), DimensionArgumentType.getDimensionArgument(context, "dimension"), Vec3ArgumentType.getPosArgument(context, "location"), RotationArgumentType.getRotation(context, "rotation")))
+							.suggests(DimensionCommand::loadedDimensionSuggestions)
+							.executes(context -> teleport(context.getSource(), EntityArgumentType.getEntities(context, "targets"), DimensionArgumentType.getDimensionArgument(context, "dimension"), null, null))
+							.then(CommandManager.argument("location", Vec3ArgumentType.vec3())
+									.executes(context -> teleport(context.getSource(), EntityArgumentType.getEntities(context, "targets"), DimensionArgumentType.getDimensionArgument(context, "dimension"), Vec3ArgumentType.getPosArgument(context, "location"), null))
+									.then(CommandManager.argument("rotation", RotationArgumentType.rotation())
+											.executes(context -> teleport(context.getSource(), EntityArgumentType.getEntities(context, "targets"), DimensionArgumentType.getDimensionArgument(context, "dimension"), Vec3ArgumentType.getPosArgument(context, "location"), RotationArgumentType.getRotation(context, "rotation")))
+									)
 							)
-					)
 					.build());
 
 			// tp <location> <rotation>

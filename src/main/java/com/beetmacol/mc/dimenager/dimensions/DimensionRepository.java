@@ -16,15 +16,20 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Texts;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.source.BiomeAccess;
+import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.level.UnmodifiableLevelProperties;
 import net.minecraft.world.level.storage.LevelStorage;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -58,25 +63,39 @@ public class DimensionRepository extends GeneratedAndConfiguredRepository<Genera
 			if (generatedDimension.getType() == null) {
 				Dimenager.LOGGER.error("Could not load dimension '" + generatedDimension.getIdentifier() + "': dimension type is not loaded");
 			} else if (generatedDimension.isEnabled()) {
-				RegistryKey<World> resourceKey = RegistryKey.of(Registry.DIMENSION, generatedDimension.getIdentifier());
-				MinecraftServerAccessor serverAccessor = (MinecraftServerAccessor) server;
-				UnmodifiableLevelProperties derivedLevelData = new UnmodifiableLevelProperties(server.getSaveProperties(), server.getSaveProperties().getMainWorldProperties());
-				GeneratorOptions worldGenSettings = server.getSaveProperties().getGeneratorOptions();
-				/* Default overworld
-				ChunkGenerator chunkGenerator = WorldGenSettings.makeDefaultOverworld(
-						server.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY),
-						server.registryAccess().registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY),
-						(new Random()).nextLong());
-				 */
-				ChunkGenerator chunkGenerator = generatedDimension.getGenerator().getChunkGenerator();
-				ServerWorld serverLevel = new ServerWorld(server, serverAccessor.getWorkerExecutor(),
-						serverAccessor.getSession(), derivedLevelData, resourceKey, generatedDimension.getType(),
-						chunkProgressListener, chunkGenerator, worldGenSettings.isDebugWorld(),
-						BiomeAccess.hashSeed(worldGenSettings.getSeed()), ImmutableList.of(), false);
-				items.replace(generatedDimension.getIdentifier(), serverLevel);
-				serverLevels.put(resourceKey, serverLevel);
+				createLevel(generatedDimension, server, chunkProgressListener);
 			}
 		}
+	}
+
+	private void createLevel(GeneratedDimension generatedDimension, MinecraftServer server, WorldGenerationProgressListener chunkProgressListener) {
+		RegistryKey<World> resourceKey = RegistryKey.of(Registry.DIMENSION, generatedDimension.getIdentifier());
+		MinecraftServerAccessor serverAccessor = (MinecraftServerAccessor) server;
+		UnmodifiableLevelProperties derivedLevelData = new UnmodifiableLevelProperties(server.getSaveProperties(), server.getSaveProperties().getMainWorldProperties());
+		GeneratorOptions worldGenSettings = server.getSaveProperties().getGeneratorOptions();
+		ChunkGenerator chunkGenerator = generatedDimension.getGenerator().getChunkGenerator();
+		ServerWorld serverLevel = new ServerWorld(server, serverAccessor.getWorkerExecutor(),
+				serverAccessor.getSession(), derivedLevelData, resourceKey, generatedDimension.getType(),
+				chunkProgressListener, chunkGenerator, worldGenSettings.isDebugWorld(),
+				BiomeAccess.hashSeed(worldGenSettings.getSeed()), ImmutableList.of(), false);
+		items.replace(generatedDimension.getIdentifier(), serverLevel);
+		serverLevels.put(resourceKey, serverLevel);
+	}
+
+	private void createLevel(GeneratedDimension dimension, ServerCommandSource source) {
+		createLevel(dimension, source.getMinecraftServer(), new WorldGenerationProgressListener() {
+			@Override
+			public void start(ChunkPos spawnPos) {
+			}
+
+			@Override
+			public void setChunkStatus(ChunkPos pos, @Nullable ChunkStatus status) {
+			}
+
+			@Override
+			public void stop() {
+			}
+		});
 	}
 
 	public int createDimension(ServerCommandSource source, Identifier identifier, DimensionType dimensionType, Identifier dimensionTypeIdentifier, Generator generator) {
@@ -84,7 +103,9 @@ public class DimensionRepository extends GeneratedAndConfiguredRepository<Genera
 			source.sendError(new LiteralText("A dimension with id '" + identifier + "' already exists"));
 			return 0;
 		}
-		addGeneratedItem(new GeneratedDimension(identifier, generatedDirectory, true, dimensionType, dimensionTypeIdentifier, generator));
+		GeneratedDimension dimension = new GeneratedDimension(identifier, generatedDirectory, true, dimensionType, dimensionTypeIdentifier, generator);
+		addGeneratedItem(dimension);
+		createLevel(dimension, source);
 		source.sendFeedback(new LiteralText("Created a new dimension with id '" + identifier + "'"), true);
 		return 1;
 	}
@@ -122,6 +143,38 @@ public class DimensionRepository extends GeneratedAndConfiguredRepository<Genera
 	public int setGenerator(ServerCommandSource source, GeneratedDimension dimension, Generator generator) {
 		dimension.setGenerator(generator);
 		source.sendFeedback(new LiteralText("The generator of '" + dimension.getIdentifier() + "' dimension was set to '" + generator.getIdentifier() + "'"), true);
+		return 1;
+	}
+
+	public int load(ServerCommandSource source, GeneratedDimension dimension) {
+		if (items.get(dimension.getIdentifier()) != null) {
+			source.sendError(new LiteralText("Dimension " + dimension.getIdentifier() + " is already loaded"));
+			return 0;
+		}
+		source.sendFeedback(new LiteralText("Loading dimension '" + dimension.getIdentifier() + "'..."), true);
+		createLevel(dimension, source);
+		return 1;
+	}
+
+	public int unload(ServerCommandSource source, GeneratedDimension dimension) {
+		if (items.get(dimension.getIdentifier()) == null) {
+			source.sendError(new LiteralText("Dimension " + dimension.getIdentifier() + " isn't loaded"));
+			return 0;
+		}
+
+		ServerWorld level = items.get(dimension.getIdentifier());
+		Dimenager.LOGGER.info("Saving chunks for level '{}'/{}", level, dimension.getIdentifier());
+		level.save(null, true, true);
+		try {
+			level.close();
+		} catch (IOException exception) {
+			source.sendError(new LiteralText("Could not close the dimension " + dimension.getIdentifier() + "! See the server console for more information"));
+			Dimenager.LOGGER.error("Closing dimension '" + dimension.getIdentifier() + "' failed with an exception", exception);
+			return 0;
+		}
+		serverLevels.remove(level.getRegistryKey());
+		items.replace(dimension.getIdentifier(), null);
+		source.sendFeedback(new LiteralText("Unloaded dimension '" + dimension.getIdentifier() + "'"), true);
 		return 1;
 	}
 }

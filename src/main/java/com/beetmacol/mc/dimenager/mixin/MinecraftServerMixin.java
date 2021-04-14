@@ -53,6 +53,7 @@ public class MinecraftServerMixin {
 		dimensionRepository.createLevels(chunkProgressListener, (MinecraftServer) (Object) this);
 	}
 
+	@SuppressWarnings("UnresolvedMixinReference")
 	@Inject(
 			method = "method_29440",
 			at = @At("TAIL")

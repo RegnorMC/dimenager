@@ -16,7 +16,6 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.serialization.Codec;
-import net.minecraft.command.argument.DimensionArgumentType;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -48,7 +47,7 @@ public class DimensionCommand {
 								)
 						)
 						.then(CommandManager.literal("remove")
-								.then(CommandManager.argument("dimension", DimensionArgumentType.dimension())
+								.then(CommandManager.argument("dimension", IdentifierArgumentType.identifier())
 										.suggests(DimensionCommand::customDimensionSuggestions)
 										.executes(context -> dimensionRepository.deleteDimension(context.getSource(), getGeneratedDimension(context, "dimension")))
 								)
@@ -76,6 +75,18 @@ public class DimensionCommand {
 														.executes(context -> dimensionRepository.setGenerator(context.getSource(), getGeneratedDimension(context, "dimension"), getGenerator(context, "value")))
 												)
 										)
+								)
+						)
+						.then(CommandManager.literal("load")
+								.then(CommandManager.argument("dimension", IdentifierArgumentType.identifier())
+										.suggests(DimensionCommand::unloadedCustomDimensionSuggestions)
+										.executes(context -> dimensionRepository.load(context.getSource(), getGeneratedDimension(context, "dimension")))
+								)
+						)
+						.then(CommandManager.literal("unload")
+								.then(CommandManager.argument("dimension", IdentifierArgumentType.identifier())
+										.suggests(DimensionCommand::loadedCustomDimensionSuggestions)
+										.executes(context -> dimensionRepository.unload(context.getSource(), getGeneratedDimension(context, "dimension")))
 								)
 						)
 				)
@@ -167,9 +178,30 @@ public class DimensionCommand {
 		);
 	}
 
+	public static CompletableFuture<Suggestions> loadedDimensionSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
+		for (Identifier identifier : dimensionRepository.getIdentifiers())
+			if (dimensionRepository.get(identifier) != null)
+				builder.suggest(identifier.toString());
+		return builder.buildFuture();
+	}
+
 	private static CompletableFuture<Suggestions> customDimensionSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
 		for (Identifier identifier : dimensionRepository.getGeneratedIdentifiers())
 			builder.suggest(identifier.toString());
+		return builder.buildFuture();
+	}
+
+	private static CompletableFuture<Suggestions> loadedCustomDimensionSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
+		for (Identifier identifier : dimensionRepository.getGeneratedIdentifiers())
+			if (dimensionRepository.get(identifier) != null)
+				builder.suggest(identifier.toString());
+		return builder.buildFuture();
+	}
+
+	private static CompletableFuture<Suggestions> unloadedCustomDimensionSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
+		for (Identifier identifier : dimensionRepository.getGeneratedIdentifiers())
+			if (dimensionRepository.get(identifier) == null)
+				builder.suggest(identifier.toString());
 		return builder.buildFuture();
 	}
 

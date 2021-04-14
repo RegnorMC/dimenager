@@ -35,7 +35,13 @@ This command splits into three sub commands: `/dimension worlds`, `/dimension ty
 ├── worlds
 │   ├──	add <identifier> <type> <generator>    Creates a new dimension
 │   ├──	remove <dimension>                     Removes a dimension
-│   └──	list                                   Lists dimensions
+│   ├──	list                                   Lists dimensions
+│   ├── set <dimension>
+│   │   ├── enabled <value>                    If set to false, the given dimension will not be loaded on server start
+│   │   ├── type <value>                       Changes the dimension type of a given dimension
+│   │   └── generator <value>                  Changes the generator of a given dimension
+│   ├── load <dimension>
+│   └── unload <dimension>
 ├── types
 │   ├──	add <identifier>                       Creates a new dimension type with defualt settings
 │   │	└── copy <other>                       Copies settings of a dimension type to a new one
