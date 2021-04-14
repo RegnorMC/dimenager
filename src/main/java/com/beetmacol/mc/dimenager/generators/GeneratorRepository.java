@@ -114,7 +114,7 @@ public class GeneratorRepository extends GeneratedRepository<Generator> {
 			return 0;
 		}
 		addGeneratedItem(new Generator(identifier, generatedDirectory, typeIdentifier, generatorCodec, typeDefaults, seed));
-		source.sendFeedback(new LiteralText("Created a new generator with id '" + identifier + "'"), false);
+		source.sendFeedback(new LiteralText("Created a new generator with id '" + identifier + "'"), true);
 		return 1;
 	}
 
@@ -124,7 +124,7 @@ public class GeneratorRepository extends GeneratedRepository<Generator> {
 			return 0;
 		}
 		addGeneratedItem(copied.deepCopy(identifier, generatedDirectory));
-		source.sendFeedback(new LiteralText("Copied generator '" + copied.getIdentifier() + "' to a new one with id '" + identifier + "'"), false);
+		source.sendFeedback(new LiteralText("Copied generator '" + copied.getIdentifier() + "' to a new one with id '" + identifier + "'"), true);
 		return 1;
 	}
 
@@ -132,7 +132,7 @@ public class GeneratorRepository extends GeneratedRepository<Generator> {
 		items.remove(generator.getIdentifier());
 		generatedItems.remove(generator.getIdentifier());
 		generator.removeFile();
-		source.sendFeedback(new LiteralText("Removed the generator with id '" + generator.getIdentifier() + "'"), false);
+		source.sendFeedback(new LiteralText("Removed the generator with id '" + generator.getIdentifier() + "'"), true);
 		return 1;
 	}
 

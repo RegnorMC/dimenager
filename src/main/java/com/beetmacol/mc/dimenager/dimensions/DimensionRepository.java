@@ -85,7 +85,7 @@ public class DimensionRepository extends GeneratedAndConfiguredRepository<Genera
 			return 0;
 		}
 		addGeneratedItem(new GeneratedDimension(identifier, generatedDirectory, true, dimensionType, dimensionTypeIdentifier, generator));
-		source.sendFeedback(new LiteralText("Created a new dimension with id '" + identifier + "'"), false);
+		source.sendFeedback(new LiteralText("Created a new dimension with id '" + identifier + "'"), true);
 		return 1;
 	}
 
@@ -93,7 +93,7 @@ public class DimensionRepository extends GeneratedAndConfiguredRepository<Genera
 		items.remove(dimension.getIdentifier());
 		generatedItems.remove(dimension.getIdentifier());
 		dimension.removeFile();
-		source.sendFeedback(new LiteralText("Removed the dimension with id '" + dimension.getIdentifier() + "'"), false);
+		source.sendFeedback(new LiteralText("Removed the dimension with id '" + dimension.getIdentifier() + "'"), true);
 		return 1;
 	}
 
@@ -105,5 +105,23 @@ public class DimensionRepository extends GeneratedAndConfiguredRepository<Genera
 			source.sendFeedback(new LiteralText("There are " + items.size() + " dimensions: ").append(Texts.join(identifiers, identifier -> new LiteralText(identifier.toString()))), false);
 		}
 		return items.size();
+	}
+
+	public int setEnabled(ServerCommandSource source, GeneratedDimension dimension, boolean value) {
+		dimension.setEnabled(value);
+		source.sendFeedback(new LiteralText((value ? "Enabled" : "Disabled") + " dimension '" + dimension.getIdentifier() + "; it will now be loaded on startup"), true);
+		return 1;
+	}
+
+	public int setType(ServerCommandSource source, GeneratedDimension dimension, DimensionType type, Identifier typeIdentifier) {
+		dimension.setType(type, typeIdentifier);
+		source.sendFeedback(new LiteralText("The dimension type of '" + dimension.getIdentifier() + "' dimension was set to '" + typeIdentifier + "'"), true);
+		return 1;
+	}
+
+	public int setGenerator(ServerCommandSource source, GeneratedDimension dimension, Generator generator) {
+		dimension.setGenerator(generator);
+		source.sendFeedback(new LiteralText("The generator of '" + dimension.getIdentifier() + "' dimension was set to '" + generator.getIdentifier() + "'"), true);
+		return 1;
 	}
 }

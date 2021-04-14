@@ -1,8 +1,6 @@
 package com.beetmacol.mc.dimenager.generators;
 
 import com.mojang.serialization.Codec;
-import java.util.HashMap;
-import java.util.Optional;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -22,6 +20,9 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.StructuresConfig;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 
+import java.util.HashMap;
+import java.util.Optional;
+
 import static com.beetmacol.mc.dimenager.Dimenager.MOD_ID;
 
 public class VoidGeneratorType extends ChunkGenerator {
@@ -30,7 +31,7 @@ public class VoidGeneratorType extends ChunkGenerator {
 	private final Registry<Biome> biomes;
 
 	public VoidGeneratorType(Registry<Biome> registry) {
-		super(new FixedBiomeSource(registry.getOrThrow(BiomeKeys.OCEAN)), new StructuresConfig(false));
+		super(new FixedBiomeSource(registry.getOrThrow(BiomeKeys.THE_VOID)), new StructuresConfig(false));
 		this.biomes = registry;
 	}
 

@@ -7,6 +7,7 @@ import com.beetmacol.mc.dimenager.generators.Generator;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -15,8 +16,6 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.serialization.Codec;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import net.minecraft.command.argument.DimensionArgumentType;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.server.command.CommandManager;
@@ -25,6 +24,9 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import static com.beetmacol.mc.dimenager.Dimenager.*;
 
@@ -53,6 +55,28 @@ public class DimensionCommand {
 						)
 						.then(CommandManager.literal("list")
 								.executes(context -> dimensionRepository.listDimensions(context.getSource()))
+						)
+						.then(CommandManager.literal("set")
+								.then(CommandManager.argument("dimension", IdentifierArgumentType.identifier())
+										.suggests(DimensionCommand::customDimensionSuggestions)
+										.then(CommandManager.literal("enabled")
+												.then(CommandManager.argument("value", BoolArgumentType.bool())
+														.executes(context -> dimensionRepository.setEnabled(context.getSource(), getGeneratedDimension(context, "dimension"), BoolArgumentType.getBool(context, "value")))
+												)
+										)
+										.then(CommandManager.literal("type")
+												.then(CommandManager.argument("value", IdentifierArgumentType.identifier())
+														.suggests(DimensionCommand::dimensionTypeSuggestions)
+														.executes(context -> dimensionRepository.setType(context.getSource(), getGeneratedDimension(context, "dimension"), getDimensionType(context, "value"), IdentifierArgumentType.getIdentifier(context, "value")))
+												)
+										)
+										.then(CommandManager.literal("generator")
+												.then(CommandManager.argument("value", IdentifierArgumentType.identifier())
+														.suggests(DimensionCommand::generatorSuggestions)
+														.executes(context -> dimensionRepository.setGenerator(context.getSource(), getGeneratedDimension(context, "dimension"), getGenerator(context, "value")))
+												)
+										)
+								)
 						)
 				)
 				.then(CommandManager.literal("types")

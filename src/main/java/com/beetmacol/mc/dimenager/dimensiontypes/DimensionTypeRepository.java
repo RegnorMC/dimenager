@@ -7,9 +7,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.serialization.JsonOps;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.Collection;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.LiteralText;
@@ -18,6 +15,10 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.level.storage.LevelStorage;
+
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Collection;
 
 public class DimensionTypeRepository extends GeneratedAndConfiguredRepository<GeneratedDimensionType, DimensionType> {
 	private final Registry<DimensionType> dimensionTypeRegistry;
@@ -55,7 +56,7 @@ public class DimensionTypeRepository extends GeneratedAndConfiguredRepository<Ge
 		}
 		GeneratedDimensionType generated = new GeneratedDimensionType(identifier, generatedDirectory, DEFAULT_OVERWORLD_JSON);
 		addGeneratedItem(generated, generated.getRealType());
-		source.sendFeedback(new LiteralText("Created a new dimension type with id '" + identifier + "'"), false);
+		source.sendFeedback(new LiteralText("Created a new dimension type with id '" + identifier + "'"), true);
 		return 1;
 	}
 
@@ -70,7 +71,7 @@ public class DimensionTypeRepository extends GeneratedAndConfiguredRepository<Ge
 				.getAsJsonObject();
 		GeneratedDimensionType generated = new GeneratedDimensionType(identifier, generatedDirectory, settings);
 		addGeneratedItem(generated, generated.getRealType());
-		source.sendFeedback(new LiteralText("Copied dimension type '" + copiedIdentifier + "' to a new one with id '" + identifier + "'"), false);
+		source.sendFeedback(new LiteralText("Copied dimension type '" + copiedIdentifier + "' to a new one with id '" + identifier + "'"), true);
 		return 1;
 	}
 
@@ -78,7 +79,7 @@ public class DimensionTypeRepository extends GeneratedAndConfiguredRepository<Ge
 		items.remove(dimensionType.getIdentifier());
 		generatedItems.remove(dimensionType.getIdentifier());
 		dimensionType.removeFile();
-		source.sendFeedback(new LiteralText("Removed the dimension type with id '" + dimensionType.getIdentifier() + "'"), false);
+		source.sendFeedback(new LiteralText("Removed the dimension type with id '" + dimensionType.getIdentifier() + "'"), true);
 		return 1;
 	}
 
@@ -119,7 +120,7 @@ public class DimensionTypeRepository extends GeneratedAndConfiguredRepository<Ge
 			return 0;
 		}
 		modifiedType.setSettings(settings);
-		source.sendFeedback(new LiteralText("The value of property '" + property + "' in dimension type '" + modifiedType.getIdentifier() + "' was set to '" + value + "'"), false);
+		source.sendFeedback(new LiteralText("The value of property '" + property + "' in dimension type '" + modifiedType.getIdentifier() + "' was set to '" + value + "'"), true);
 		return 1;
 	}
 }
