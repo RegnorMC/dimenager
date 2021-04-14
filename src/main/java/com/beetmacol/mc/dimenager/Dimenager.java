@@ -6,6 +6,8 @@ import com.beetmacol.mc.dimenager.dimensiontypes.DimensionTypeRepository;
 import com.beetmacol.mc.dimenager.generators.DefaultGeneratorTypeLoader;
 import com.beetmacol.mc.dimenager.generators.GeneratorRepository;
 import com.beetmacol.mc.dimenager.generators.VoidGeneratorType;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resource.ResourceType;
@@ -17,8 +19,10 @@ import org.apache.logging.log4j.Logger;
 public class Dimenager {
 	public static final String MOD_ID = "dimenager";
 	public static final Logger LOGGER = LogManager.getLogger("Dimenager");
+	
+	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-	public static DimenagerConfiguration dimenagerConfiguration;
+	public static DimenagerConfiguration configuration;
 
 	public static DimensionRepository dimensionRepository;
 	public static DimensionTypeRepository dimensionTypeRepository;
@@ -28,7 +32,7 @@ public class Dimenager {
 	public static RegistryOps<JsonElement> registryReadOps;
 
 	public static void init() {
-		dimenagerConfiguration = DimenagerConfiguration.readConfiguration();
+		configuration = DimenagerConfiguration.readConfiguration();
 		Registry.register(Registry.CHUNK_GENERATOR, VoidGeneratorType.IDENTIFIER, VoidGeneratorType.CODEC);
 
 		defaultGeneratorTypeLoader = new DefaultGeneratorTypeLoader();

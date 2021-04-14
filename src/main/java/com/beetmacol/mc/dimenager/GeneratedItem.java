@@ -1,11 +1,12 @@
 package com.beetmacol.mc.dimenager;
 
 import com.google.gson.JsonObject;
+import net.minecraft.util.Identifier;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
-import net.minecraft.util.Identifier;
 
 public abstract class GeneratedItem {
 	private final Identifier identifier;
@@ -23,7 +24,7 @@ public abstract class GeneratedItem {
 			file.createNewFile();
 			FileWriter writer =  new FileWriter(file);
 			JsonObject json = toJson();
-			writer.write(json.toString());
+			writer.write(Dimenager.GSON.toJson(json));
 			writer.close();
 		} catch (IOException exception) {
 			Dimenager.LOGGER.error("Could not save generated dimension information to file {}", file, exception);

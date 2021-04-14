@@ -6,7 +6,7 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 archivesBaseName = 'dimenager'
-group = 'com.beetmacol'
+group = 'com.beetmacol.mc'
 version = '0.0.1'
 
 Set<String> apiModules = [

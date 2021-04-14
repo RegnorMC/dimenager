@@ -17,7 +17,7 @@ public class AmbiguityWarningRemovalMixin {
 			at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/CommandDispatcher;findAmbiguities(Lcom/mojang/brigadier/AmbiguityConsumer;)V")
 	)
 	void removeAmbiguityWarnings(CommandDispatcher<ServerCommandSource> commandDispatcher, AmbiguityConsumer<ServerCommandSource> consumer) {
-		if (!Dimenager.dimenagerConfiguration.isRemoveAmbiguityWarnings())
+		if (!Dimenager.configuration.isRemoveAmbiguityWarnings())
 			commandDispatcher.findAmbiguities(consumer); // If the config option is disabled we will still find all the ambiguities
 	}
 }

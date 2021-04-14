@@ -43,7 +43,7 @@ public abstract class TeleportCommandMixin {
 			locals = LocalCapture.CAPTURE_FAILHARD
 	)
 	private static void register(CommandDispatcher<ServerCommandSource> commandDispatcher, CallbackInfo ci, LiteralCommandNode<ServerCommandSource> teleportCommandNode) {
-		if (Dimenager.dimenagerConfiguration.isModifyTpCommand()) {
+		if (Dimenager.configuration.isModifyTpCommand()) {
 			// tp <dimension> ...
 			teleportCommandNode
 					.addChild(CommandManager.argument("dimension", DimensionArgumentType.dimension())
